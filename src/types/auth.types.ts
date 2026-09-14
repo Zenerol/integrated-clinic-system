@@ -29,8 +29,8 @@ export interface SignInPayload {
 }
 
 export interface AuthContextType extends AuthState {
-  signIn: (payload: SignInPayload) => Promise<{ error: Error | null }>;
-  signUp: (payload: RegisterPayload) => Promise<{ error: Error | null }>;
+  signIn: (payload: SignInPayload) => Promise<{ error: Error | null; profile: Profile | null }>;
+  signUp: (payload: RegisterPayload) => Promise<{ error: Error | null; profile: Profile | null }>;
   signOut: () => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
 }

@@ -25,14 +25,14 @@ export const LoginPage: React.FC = () => {
 
     setLoading(true);
 
-    const { error } = await signIn({ email, password });
+    const { error, profile: userProfile } = await signIn({ email, password });
     setLoading(false);
 
     if (error) {
       setErrorMessage(error.message || 'Invalid login credentials.');
     } else {
-      if (profile?.role === 'doctor') navigate('/doctor');
-      else if (profile?.role === 'nurse') navigate('/nurse');
+      if (userProfile?.role === 'doctor') navigate('/doctor');
+      else if (userProfile?.role === 'nurse') navigate('/nurse');
       else navigate('/portal');
     }
   };

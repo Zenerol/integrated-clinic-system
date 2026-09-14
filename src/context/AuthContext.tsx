@@ -56,24 +56,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (payload: SignInPayload) => {
     setError(null);
     try {
-      await authService.signIn(payload);
-      return { error: null };
+      const data = await authService.signIn(payload);
+      if (data.user) {
+        setUser(data.user);
+        setSession(data.session);
+        const p = await authService.getProfile(data.user.id);
+        setProfile(p);
+        return { error: null, profile: p };
+      }
+      return { error: null, profile: null };
     } catch (err: unknown) {
       const errorObj = err instanceof Error ? err : new Error('Sign in failed');
       setError(errorObj.message);
-      return { error: errorObj };
+      return { error: errorObj, profile: null };
     }
   };
 
   const signUp = async (payload: RegisterPayload) => {
     setError(null);
     try {
-      await authService.signUp(payload);
-      return { error: null };
+      const data = await authService.signUp(payload);
+      if (data.user) {
+        setUser(data.user);
+        setSession(data.session);
+        const p = await authService.getProfile(data.user.id);
+        setProfile(p);
+        return { error: null, profile: p };
+      }
+      return { error: null, profile: null };
     } catch (err: unknown) {
       const errorObj = err instanceof Error ? err : new Error('Sign up failed');
       setError(errorObj.message);
-      return { error: errorObj };
+      return { error: errorObj, profile: null };
     }
   };
 

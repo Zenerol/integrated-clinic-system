@@ -47,7 +47,7 @@ export const RegisterPage: React.FC = () => {
 
     setLoading(true);
 
-    const { error } = await signUp({
+    const { error, profile: userProfile } = await signUp({
       email,
       password,
       fullName,
@@ -64,8 +64,9 @@ export const RegisterPage: React.FC = () => {
     if (error) {
       setErrorMessage(error.message || 'Registration failed.');
     } else {
-      if (role === 'doctor') navigate('/doctor');
-      else if (role === 'nurse') navigate('/nurse');
+      const activeRole = userProfile?.role || role;
+      if (activeRole === 'doctor') navigate('/doctor');
+      else if (activeRole === 'nurse') navigate('/nurse');
       else navigate('/portal');
     }
   };
