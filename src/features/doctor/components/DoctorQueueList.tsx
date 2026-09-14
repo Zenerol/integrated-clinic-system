@@ -44,7 +44,7 @@ export const DoctorQueueList: React.FC<DoctorQueueListProps> = ({
         return (
           <div
             key={item.id}
-            className="glass-card p-5 rounded-2xl border border-purple-200 dark:border-purple-500/20 bg-white dark:bg-slate-900/80 hover:border-purple-300 dark:hover:border-purple-500/40 transition flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm"
+            className="glass-card p-5 rounded-xl border border-purple-200/80 dark:border-purple-500/30 bg-white dark:bg-slate-900/80 hover:border-purple-300 dark:hover:border-purple-500/50 transition-all duration-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs hover:shadow-sm"
           >
             <div className="space-y-2 flex-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -55,7 +55,7 @@ export const DoctorQueueList: React.FC<DoctorQueueListProps> = ({
                   {patientStyle.label}
                 </Badge>
                 {item.patient.school_id_number && (
-                  <span className="text-xs text-slate-700 dark:text-slate-300 font-mono bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 font-bold">
+                  <span className="text-xs text-slate-700 dark:text-slate-300 font-mono bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200/80 dark:border-slate-700 font-bold">
                     ID: {item.patient.school_id_number}
                   </span>
                 )}
@@ -66,7 +66,7 @@ export const DoctorQueueList: React.FC<DoctorQueueListProps> = ({
                 <h4 className="text-base font-extrabold text-slate-900 dark:text-slate-100">{item.patient.full_name}</h4>
               </div>
 
-              <p className="text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800 font-medium">
+              <p className="text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 font-medium">
                 <strong className="text-slate-900 dark:text-slate-300 font-bold">Chief Complaint:</strong> {item.chief_complaint}
               </p>
 

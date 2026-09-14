@@ -90,7 +90,7 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Dashboard Top Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card p-6 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card p-6 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-sm transition-shadow duration-200">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-xl border border-teal-500/20">
             <ShieldCheck className="w-6 h-6" />
@@ -111,13 +111,13 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
       </div>
 
       {/* Segmented Filter Tab Bar */}
-      <div className="flex bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 max-w-md">
+      <div className="flex bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800 max-w-md shadow-xs">
         <button
           type="button"
           onClick={() => setActiveTab('pending')}
           className={`flex-1 py-2 text-xs font-black rounded-lg transition cursor-pointer flex items-center justify-center gap-2 ${
             activeTab === 'pending'
-              ? 'bg-amber-600 text-white shadow-sm'
+              ? 'bg-amber-600 text-white shadow-xs'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
           }`}
         >
@@ -130,7 +130,7 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
           onClick={() => setActiveTab('all')}
           className={`flex-1 py-2 text-xs font-black rounded-lg transition cursor-pointer flex items-center justify-center gap-2 ${
             activeTab === 'all'
-              ? 'bg-teal-700 text-white shadow-sm'
+              ? 'bg-teal-700 text-white shadow-xs'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
           }`}
         >
@@ -140,7 +140,7 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
       </div>
 
       {/* Staff Applications Table */}
-      <div className="glass-card rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 overflow-hidden shadow-sm">
+      <div className="glass-card rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/80 overflow-hidden shadow-xs hover:shadow-sm transition-shadow duration-200">
         {loading ? (
           <div className="p-12 text-center text-slate-500 dark:text-slate-400 text-sm font-semibold">
             Loading staff verification records...
@@ -157,7 +157,7 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50 text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <tr className="border-b border-slate-200/75 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50 text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   <th className="py-3.5 px-4">Applicant Name</th>
                   <th className="py-3.5 px-4">Role</th>
                   <th className="py-3.5 px-4">PRC License No</th>

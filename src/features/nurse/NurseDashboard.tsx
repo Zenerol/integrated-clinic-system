@@ -156,7 +156,7 @@ export const NurseDashboard: React.FC = () => {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card className="!p-4 bg-amber-500/10 dark:bg-amber-500/5 border-amber-300 dark:border-amber-500/20">
+        <Card className="!p-4 bg-amber-500/10 dark:bg-amber-500/5 border border-amber-200/80 dark:border-amber-500/20 shadow-xs hover:shadow-sm transition-shadow duration-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-slate-700 dark:text-slate-400 font-extrabold uppercase tracking-wide">Pending Requests</p>
@@ -165,7 +165,7 @@ export const NurseDashboard: React.FC = () => {
             <Clock className="w-8 h-8 text-amber-700/50 dark:text-amber-400/40" />
           </div>
         </Card>
-        <Card className="!p-4 bg-emerald-500/10 dark:bg-emerald-500/5 border-emerald-300 dark:border-emerald-500/20">
+        <Card className="!p-4 bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-200/80 dark:border-emerald-500/20 shadow-xs hover:shadow-sm transition-shadow duration-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-slate-700 dark:text-slate-400 font-extrabold uppercase tracking-wide">Patients In Queue</p>

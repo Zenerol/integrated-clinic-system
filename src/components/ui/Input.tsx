@@ -36,8 +36,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             className={`w-full min-h-[44px] bg-white dark:bg-slate-900 border ${
               error
                 ? 'border-rose-500 text-rose-900 dark:text-rose-100 focus:ring-rose-500'
-                : 'border-slate-300 dark:border-slate-700 focus:border-teal-700 dark:focus:border-teal-400 focus:ring-teal-700 dark:focus:ring-teal-400'
-            } text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm font-semibold rounded-xl px-3.5 py-2.5 transition duration-200 outline-none focus:ring-2 ${
+                : 'border-slate-200/80 dark:border-slate-700 focus:border-teal-700 dark:focus:border-teal-400 focus:ring-2 focus:ring-teal-700/20'
+            } text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm font-semibold rounded-xl px-3.5 py-2.5 transition duration-200 outline-none shadow-xs ${
               leftIcon ? 'pl-10' : ''
             } ${rightIcon || isPassword ? 'pr-10' : ''} ${className}`}
             {...props}

@@ -22,13 +22,13 @@ export const Button: React.FC<ButtonProps> = ({
     'inline-flex items-center justify-center font-bold tracking-wide transition-all duration-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98] min-h-[44px] cursor-pointer';
 
   const variantClasses = {
-    primary: 'bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-extrabold shadow-sm border border-teal-800/20 dark:border-teal-400/30 focus:ring-teal-500',
-    secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700 focus:ring-slate-400',
-    danger: 'bg-rose-700 hover:bg-rose-800 dark:bg-rose-600 dark:hover:bg-rose-500 text-white font-extrabold shadow-sm border border-rose-800/20 dark:border-rose-400/30 focus:ring-rose-500',
-    cancel: 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 dark:text-rose-300 dark:border-rose-500/40 font-extrabold focus:ring-rose-500',
-    success: 'bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-extrabold shadow-sm border border-emerald-800/20 dark:border-emerald-400/30 focus:ring-emerald-500',
-    outline: 'bg-white hover:bg-teal-50 text-teal-800 border-2 border-teal-700 dark:bg-slate-900/90 dark:hover:bg-slate-800 dark:text-teal-300 dark:border-teal-500 focus:ring-teal-500',
-    ghost: 'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white focus:ring-slate-400',
+    primary: 'bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-extrabold shadow-xs hover:shadow-sm border border-teal-800/30 dark:border-teal-400/30 focus:ring-2 focus:ring-teal-700/30',
+    secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 dark:border-slate-700 shadow-xs focus:ring-2 focus:ring-slate-400/30',
+    danger: 'bg-rose-700 hover:bg-rose-800 dark:bg-rose-600 dark:hover:bg-rose-500 text-white font-extrabold shadow-xs hover:shadow-sm border border-rose-800/30 dark:border-rose-400/30 focus:ring-2 focus:ring-rose-500/30',
+    cancel: 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300/80 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 dark:text-rose-300 dark:border-rose-500/40 font-extrabold shadow-xs focus:ring-2 focus:ring-rose-500/30',
+    success: 'bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-extrabold shadow-xs hover:shadow-sm border border-emerald-800/30 dark:border-emerald-400/30 focus:ring-2 focus:ring-emerald-500/30',
+    outline: 'bg-white hover:bg-teal-50 text-teal-800 border border-teal-700/80 dark:bg-slate-900/90 dark:hover:bg-slate-800 dark:text-teal-300 dark:border-teal-500/80 shadow-xs focus:ring-2 focus:ring-teal-500/30',
+    ghost: 'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white focus:ring-2 focus:ring-slate-400/30',
   };
 
   const sizeClasses = {

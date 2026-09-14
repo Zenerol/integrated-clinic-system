@@ -62,9 +62,9 @@ export const PatientAppointmentsList: React.FC<PatientAppointmentsListProps> = (
         return (
           <div
             key={item.id}
-            className="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 space-y-4 shadow-sm"
+            className="glass-card p-5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/80 space-y-4 shadow-xs hover:shadow-sm transition-all duration-200"
           >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200/75 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className={`${statusStyle.bg} ${statusStyle.text}`}>
                   {statusStyle.label}
@@ -87,7 +87,7 @@ export const PatientAppointmentsList: React.FC<PatientAppointmentsListProps> = (
             </div>
 
             {/* Chief Complaint */}
-            <p className="text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800 font-medium">
+            <p className="text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 font-medium">
               <strong className="text-slate-900 dark:text-slate-300 font-bold">Health Symptoms:</strong> {item.chief_complaint}
             </p>
 

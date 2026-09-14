@@ -10,9 +10,9 @@ export interface CardProps {
 
 export const Card: React.FC<CardProps> = ({ children, title, subtitle, action, className = '' }) => {
   return (
-    <div className={`glass-panel rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 ${className}`}>
+    <div className={`rounded-xl p-6 shadow-xs hover:shadow-sm transition-all duration-200 border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/90 ${className}`}>
       {(title || action) && (
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-200/80 dark:border-slate-800">
           <div>
             {title && <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{title}</h3>}
             {subtitle && <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">{subtitle}</p>}

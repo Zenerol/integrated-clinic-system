@@ -33,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xs">
+    <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200/75 dark:border-slate-800 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Left Section: Mobile Sidebar Toggle & Brand Logo (Hidden on Desktop to avoid duplicate logo) */}
         <div className="flex items-center gap-3">
