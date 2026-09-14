@@ -3,36 +3,48 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --color-bg-dark: #0f172a;
-    --color-card-dark: #1e293b;
-    --color-border-dark: #334155;
+  html {
+    font-family: 'Figtree', 'Inter', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: #090d16;
+    color: #f1f5f9;
+  }
+
+  /* HCI Accessibility Focus Indicator */
+  *:focus-visible {
+    outline: 2px solid #22d3ee !important;
+    outline-offset: 2px !important;
   }
 }
 
-/* Custom Utilities for Glassmorphism & Custom Scrollbars */
+/* Glassmorphism Cards & Panels with High Contrast Borders */
 .glass-panel {
-  background: rgba(30, 41, 59, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .glass-card {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #090d16;
 }
 
 ::-webkit-scrollbar-thumb {
