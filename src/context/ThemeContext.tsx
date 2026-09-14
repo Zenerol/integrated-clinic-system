@@ -11,7 +11,6 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Default to 'light' mode as requested!
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem('clinic_theme') as ThemeMode;
     return saved || 'light';
