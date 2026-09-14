@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { appointmentService } from '../../services/appointmentService';
 import { medicalRecordService } from '../../services/medicalRecordService';
 import { notificationService } from '../../services/notificationService';
@@ -17,6 +18,7 @@ import { User, Plus, Calendar, Pill, RefreshCw } from 'lucide-react';
 
 export const PatientDashboard: React.FC = () => {
   const { profile } = useAuth();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<string>('active');
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -62,11 +64,13 @@ export const PatientDashboard: React.FC = () => {
       type: 'info',
     });
 
+    showToast('Appointment request booked successfully!', 'success', 'Booked');
     await fetchPatientData();
   };
 
   const handleCancelAppointment = async (appointmentId: string) => {
     await appointmentService.cancelAppointment(appointmentId);
+    showToast('Appointment request cancelled', 'info', 'Cancelled');
     await fetchPatientData();
   };
 

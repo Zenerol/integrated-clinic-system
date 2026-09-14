@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { appointmentService } from '../../services/appointmentService';
 import { medicalRecordService } from '../../services/medicalRecordService';
 import { notificationService } from '../../services/notificationService';
@@ -16,6 +17,7 @@ import { Button } from '../../components/ui/Button';
 
 export const NurseDashboard: React.FC = () => {
   const { profile } = useAuth();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<string>('pending');
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -62,9 +64,11 @@ export const NurseDashboard: React.FC = () => {
         type: 'success',
       });
 
+      showToast(`Approved appointment for ${appointment.patient.full_name}`, 'success', 'Appointment Approved');
       await fetchDashboardData();
     } catch (err) {
       console.error('Failed to approve appointment:', err);
+      showToast('Failed to approve appointment', 'error');
     }
   };
 
@@ -82,6 +86,7 @@ export const NurseDashboard: React.FC = () => {
       });
     }
 
+    showToast('Appointment request declined', 'warning', 'Declined');
     await fetchDashboardData();
   };
 
@@ -111,6 +116,7 @@ export const NurseDashboard: React.FC = () => {
       type: 'urgent',
     });
 
+    showToast('Nurse health check recorded & sent to Doctor!', 'success', 'Vitals Saved');
     await fetchDashboardData();
   };
 

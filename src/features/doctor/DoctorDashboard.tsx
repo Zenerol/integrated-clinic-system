@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { appointmentService } from '../../services/appointmentService';
 import { medicalRecordService } from '../../services/medicalRecordService';
 import { notificationService } from '../../services/notificationService';
@@ -14,6 +15,7 @@ import { Stethoscope, UserCheck, FileText, Clock, Users, RefreshCw } from 'lucid
 
 export const DoctorDashboard: React.FC = () => {
   const { profile } = useAuth();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState<boolean>(true);
   const [doctorQueue, setDoctorQueue] = useState<AppointmentWithPatient[]>([]);
 
@@ -76,6 +78,8 @@ export const DoctorDashboard: React.FC = () => {
       message: `Dr. ${profile.full_name} has finalized your medical record and prescriptions. Clearance slips are now available in your portal.`,
       type: 'success',
     });
+
+    showToast('Doctor checkup & medical certificate finalized!', 'success', 'Consultation Completed');
 
     // Load created record for Document Preview
     const finalRecord = await medicalRecordService.getRecordByAppointment(appointmentId);

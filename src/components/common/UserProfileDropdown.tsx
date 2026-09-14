@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { getPatientTypeBadgeStyle } from '../../utils/formatters';
 import { User, LogOut, ChevronDown, ShieldCheck, HeartPulse, UserCheck, Settings, IdCard } from 'lucide-react';
@@ -7,6 +8,7 @@ import { Badge } from '../ui/Badge';
 
 export const UserProfileDropdown: React.FC = () => {
   const { profile, signOut } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -36,6 +38,7 @@ export const UserProfileDropdown: React.FC = () => {
 
   const handleLogout = async () => {
     setIsOpen(false);
+    showToast('Logged out safely. Have a great day!', 'info', 'Signed Out');
     await signOut();
     navigate('/login');
   };
