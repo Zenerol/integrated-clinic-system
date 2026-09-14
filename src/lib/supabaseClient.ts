@@ -1,14 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '../types/database.types';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder';
+const defaultSupabaseUrl = 'https://kjjyyblgtmwronvudvxc.supabase.co';
+const defaultSupabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtqanl5YmxndG13cm9udnVkdnhjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTM4NDkzMSwiZXhwIjoyMTA0OTYwOTMxfQ.9TUBie0v5g58CIkZH0yiA0zcFu2l61xvIe-YIceftMk';
 
-if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  console.warn(
-    '[Supabase Client Warning]: Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY in environment variables. Realtime and auth queries will fail until provided.'
-  );
-}
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || defaultSupabaseUrl;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || defaultSupabaseAnonKey;
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
