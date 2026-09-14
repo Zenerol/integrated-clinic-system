@@ -42,11 +42,10 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const fillCredentials = (demoEmail: string, roleName: string) => {
+  const fillCredentials = (demoEmail: string) => {
     setEmail(demoEmail);
     setPassword('Password123!');
     setErrorMessage(null);
-    showToast(`Autofilled ${roleName} credentials`, 'info');
   };
 
   return (

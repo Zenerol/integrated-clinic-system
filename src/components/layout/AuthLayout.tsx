@@ -6,26 +6,18 @@ import { useToast } from '../../context/ToastContext';
 
 export const AuthLayout: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const { showToast } = useToast();
-
-  const handleToggleTheme = () => {
-    toggleTheme();
-    showToast(`Switched to ${theme === 'light' ? 'Dark' : 'Light'} Mode`, 'info');
-  };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#070c18] text-slate-900 dark:text-slate-100 flex flex-col justify-center items-center p-4 relative overflow-hidden transition-colors duration-300 bg-grid-pattern">
-      {/* Background Texture & Ambient Mesh Gradients */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-b from-teal-500/15 via-emerald-500/10 to-transparent blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -top-20 -left-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-slate-50 dark:bg-[#080d1a] text-slate-900 dark:text-slate-100 flex flex-col justify-center items-center p-4 relative overflow-hidden transition-colors duration-300">
+      {/* Soft Ambient Radial Lighting */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-[radial-gradient(ellipse_at_top,rgba(13,148,136,0.12),transparent_70%)] pointer-events-none" />
 
       {/* Theme Switcher Top Right */}
       <div className="absolute top-5 right-5 z-20">
         <button
-          onClick={handleToggleTheme}
+          onClick={toggleTheme}
           type="button"
-          className={`px-4 py-2 rounded-xl border transition-all duration-200 flex items-center gap-2 text-xs font-black shadow-sm cursor-pointer active:scale-95 ${
+          className={`px-4 py-2 rounded-xl border transition-all duration-200 flex items-center gap-2 text-xs font-black shadow-xs cursor-pointer active:scale-95 ${
             theme === 'light'
               ? 'bg-slate-900 text-white border-slate-700 hover:bg-slate-800'
               : 'bg-teal-50 text-teal-900 border-teal-300 hover:bg-teal-100'
