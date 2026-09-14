@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import { Mail, Lock, LogIn, AlertCircle, Stethoscope, HeartPulse, GraduationCap, UserCheck } from 'lucide-react';
+import { Mail, Lock, LogIn, AlertCircle, Stethoscope, HeartPulse, GraduationCap, UserCheck, ShieldCheck } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { signIn } = useAuth();
@@ -36,9 +36,17 @@ export const LoginPage: React.FC = () => {
       showToast(msg, 'error', 'Login Failed');
     } else {
       showToast(`Welcome back, ${userProfile?.full_name || 'User'}!`, 'success', 'Signed In');
-      if (userProfile?.role === 'doctor') navigate('/doctor');
-      else if (userProfile?.role === 'nurse') navigate('/nurse');
-      else navigate('/portal');
+      if (userProfile?.account_status === 'pending_approval' || userProfile?.account_status === 'rejected') {
+        navigate('/awaiting-approval');
+      } else if (userProfile?.role === 'admin') {
+        navigate('/admin/staff-approvals');
+      } else if (userProfile?.role === 'doctor') {
+        navigate('/doctor');
+      } else if (userProfile?.role === 'nurse') {
+        navigate('/nurse');
+      } else {
+        navigate('/portal');
+      }
     }
   };
 
@@ -107,7 +115,19 @@ export const LoginPage: React.FC = () => {
         <div className="grid grid-cols-2 gap-2 text-xs">
           <button
             type="button"
-            onClick={() => fillCredentials('doctor@clinic.test', 'Doctor')}
+            onClick={() => fillCredentials('admin@clinic.test')}
+            className="p-2.5 bg-rose-50 dark:bg-rose-500/15 hover:bg-rose-100 dark:hover:bg-rose-500/25 text-rose-950 dark:text-rose-200 border border-rose-200 dark:border-rose-500/30 rounded-xl text-left transition font-extrabold cursor-pointer shadow-xs active:scale-95 flex items-start gap-2 col-span-2"
+          >
+            <ShieldCheck className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <strong className="text-rose-900 dark:text-rose-300 block text-xs">Clinic Administrator</strong>
+              <span className="text-[10px] font-mono opacity-80 block truncate">admin@clinic.test</span>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => fillCredentials('doctor@clinic.test')}
             className="p-2.5 bg-purple-50 dark:bg-purple-500/15 hover:bg-purple-100 dark:hover:bg-purple-500/25 text-purple-950 dark:text-purple-200 border border-purple-200 dark:border-purple-500/30 rounded-xl text-left transition font-extrabold cursor-pointer shadow-xs active:scale-95 flex items-start gap-2"
           >
             <Stethoscope className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
@@ -119,7 +139,7 @@ export const LoginPage: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => fillCredentials('nurse@clinic.test', 'Nurse')}
+            onClick={() => fillCredentials('nurse@clinic.test')}
             className="p-2.5 bg-emerald-50 dark:bg-emerald-500/15 hover:bg-emerald-100 dark:hover:bg-emerald-500/25 text-emerald-950 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-500/30 rounded-xl text-left transition font-extrabold cursor-pointer shadow-xs active:scale-95 flex items-start gap-2"
           >
             <HeartPulse className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
@@ -131,7 +151,7 @@ export const LoginPage: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => fillCredentials('student@clinic.test', 'Student')}
+            onClick={() => fillCredentials('student@clinic.test')}
             className="p-2.5 bg-blue-50 dark:bg-blue-500/15 hover:bg-blue-100 dark:hover:bg-blue-500/25 text-blue-950 dark:text-blue-200 border border-blue-200 dark:border-blue-500/30 rounded-xl text-left transition font-extrabold cursor-pointer shadow-xs active:scale-95 flex items-start gap-2"
           >
             <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
@@ -143,7 +163,7 @@ export const LoginPage: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => fillCredentials('external@clinic.test', 'Outpatient')}
+            onClick={() => fillCredentials('external@clinic.test')}
             className="p-2.5 bg-amber-50 dark:bg-amber-500/15 hover:bg-amber-100 dark:hover:bg-amber-500/25 text-amber-950 dark:text-amber-200 border border-amber-200 dark:border-amber-500/30 rounded-xl text-left transition font-extrabold cursor-pointer shadow-xs active:scale-95 flex items-start gap-2"
           >
             <UserCheck className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
@@ -155,11 +175,17 @@ export const LoginPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 text-center">
+      <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 text-center flex flex-col gap-2">
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-bold">
           Don't have an account?{' '}
           <Link to="/register" className="text-teal-700 dark:text-teal-400 hover:underline font-black">
-            Register Here
+            Register as Patient
+          </Link>
+        </p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Medical Doctor or Clinical Nurse?{' '}
+          <Link to="/staff/register" className="text-purple-600 dark:text-purple-400 hover:underline font-bold">
+            Staff Self-Registration
           </Link>
         </p>
       </div>

@@ -12,6 +12,9 @@ export const authService = {
   },
 
   async signUp(payload: RegisterPayload) {
+    const isStaff = payload.role === 'doctor' || payload.role === 'nurse';
+    const initialStatus = isStaff ? 'pending_approval' : 'active';
+
     const { data, error } = await supabase.auth.signUp({
       email: payload.email,
       password: payload.password,
@@ -31,11 +34,13 @@ export const authService = {
         id: data.user.id,
         full_name: payload.fullName,
         role: payload.role,
-        patient_type: payload.patientType,
+        patient_type: payload.patientType || null,
         school_id_number: payload.schoolIdNumber || null,
         department_or_course: payload.departmentOrCourse || null,
         contact_number: payload.contactNumber || null,
         address: payload.address || null,
+        account_status: initialStatus,
+        professional_license_no: payload.professionalLicenseNo || null,
       });
 
       if (profileError) throw profileError;
@@ -77,6 +82,11 @@ export const authService = {
         department_or_course: meta.department_or_course || null,
         contact_number: meta.contact_number || null,
         address: meta.address || null,
+        account_status: (meta.role === 'doctor' || meta.role === 'nurse') ? 'pending_approval' : 'active',
+        professional_license_no: meta.professional_license_no || null,
+        rejection_reason: null,
+        approved_by: null,
+        approved_at: null,
         created_at: new Date().toISOString(),
       };
 

@@ -8,9 +8,12 @@ import { AuthLayout } from '../components/layout/AuthLayout';
 // Feature Components
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
+import { StaffRegisterPage } from '../features/auth/StaffRegisterPage';
+import { AwaitingApprovalPage } from '../features/auth/AwaitingApprovalPage';
 import { DoctorDashboard } from '../features/doctor/DoctorDashboard';
 import { NurseDashboard } from '../features/nurse/NurseDashboard';
 import { PatientDashboard } from '../features/patient/PatientDashboard';
+import { AdminStaffApprovalsDashboard } from '../features/admin/AdminStaffApprovalsDashboard';
 import { UnauthorizedPage } from '../features/common/UnauthorizedPage';
 import { NotFoundPage } from '../features/common/NotFoundPage';
 
@@ -21,11 +24,21 @@ export const AppRoutes: React.FC = () => {
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/staff/register" element={<StaffRegisterPage />} />
       </Route>
 
-      {/* Protected Routes wrapped in Dashboard Layout */}
+      {/* Protected Pending Verification View */}
       <Route element={<ProtectedRoute />}>
+        <Route path="/awaiting-approval" element={<AwaitingApprovalPage />} />
+
+        {/* Dashboard Shell Routes */}
         <Route element={<DashboardLayout />}>
+          {/* Admin Panel (Guarded: admin) */}
+          <Route element={<RoleRoute allowedRoles={['admin']} />}>
+            <Route path="/admin/*" element={<AdminStaffApprovalsDashboard />} />
+            <Route path="/admin/staff-approvals" element={<AdminStaffApprovalsDashboard />} />
+          </Route>
+
           {/* Doctor Portal (Guarded: doctor) */}
           <Route element={<RoleRoute allowedRoles={['doctor']} />}>
             <Route path="/doctor/*" element={<DoctorDashboard />} />

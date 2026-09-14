@@ -20,6 +20,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   const getPortalLink = () => {
     if (!profile) return '/login';
     switch (profile.role) {
+      case 'admin':
+        return '/admin/staff-approvals';
       case 'doctor':
         return '/doctor';
       case 'nurse':

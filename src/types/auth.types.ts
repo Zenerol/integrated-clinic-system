@@ -16,11 +16,20 @@ export interface RegisterPayload {
   password: string;
   fullName: string;
   role: UserRole;
-  patientType: PatientCategory;
+  patientType?: PatientCategory;
   schoolIdNumber?: string;
   departmentOrCourse?: string;
   contactNumber?: string;
   address?: string;
+  professionalLicenseNo?: string;
+}
+
+export interface StaffRegisterPayload {
+  email: string;
+  password: string;
+  fullName: string;
+  role: 'doctor' | 'nurse';
+  professionalLicenseNo: string;
 }
 
 export interface SignInPayload {

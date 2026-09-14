@@ -6,7 +6,8 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type UserRole = 'doctor' | 'nurse' | 'client';
+export type UserRole = 'admin' | 'doctor' | 'nurse' | 'client';
+export type AccountStatus = 'pending_approval' | 'active' | 'suspended' | 'rejected';
 export type PatientCategory = 'student' | 'faculty_staff' | 'external_client';
 export type AppointmentStatus =
   | 'pending'
@@ -33,6 +34,11 @@ export interface Database {
           department_or_course: string | null;
           contact_number: string | null;
           address: string | null;
+          account_status: AccountStatus;
+          professional_license_no: string | null;
+          rejection_reason: string | null;
+          approved_by: string | null;
+          approved_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -44,6 +50,11 @@ export interface Database {
           department_or_course?: string | null;
           contact_number?: string | null;
           address?: string | null;
+          account_status?: AccountStatus;
+          professional_license_no?: string | null;
+          rejection_reason?: string | null;
+          approved_by?: string | null;
+          approved_at?: string | null;
           created_at?: string;
         };
         Update: {
@@ -55,6 +66,11 @@ export interface Database {
           department_or_course?: string | null;
           contact_number?: string | null;
           address?: string | null;
+          account_status?: AccountStatus;
+          professional_license_no?: string | null;
+          rejection_reason?: string | null;
+          approved_by?: string | null;
+          approved_at?: string | null;
           created_at?: string;
         };
       };

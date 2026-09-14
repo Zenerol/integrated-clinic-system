@@ -20,9 +20,17 @@ export const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles }) => {
   }
 
   const activeRole = profile?.role || (user?.user_metadata?.role as UserRole | undefined);
+  const accountStatus = profile?.account_status || 'active'; // default active for legacy/client
 
+  // If user role is not in allowedRoles list -> Unauthorized
   if (!user || !activeRole || !allowedRoles.includes(activeRole)) {
     return <Navigate to="/unauthorized" replace />;
+  }
+
+  // OWASP A01 & Directive 4: Guard Hardening
+  // Block any non-active staff member from accessing clinical routes (/doctor/* or /nurse/*)
+  if ((activeRole === 'doctor' || activeRole === 'nurse') && accountStatus !== 'active') {
+    return <Navigate to="/awaiting-approval" replace />;
   }
 
   return <Outlet />;

@@ -45,6 +45,13 @@ export const UserProfileDropdown: React.FC = () => {
 
   const getRoleDetails = () => {
     switch (profile.role) {
+      case 'admin':
+        return {
+          label: 'Clinic Administrator',
+          subtext: 'System Administration',
+          badgeVariant: 'danger' as const,
+          icon: <ShieldCheck className="w-3 h-3" />,
+        };
       case 'doctor':
         return {
           label: 'MD Physician',

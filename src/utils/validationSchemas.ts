@@ -52,8 +52,30 @@ export function getPasswordStrength(password: string): {
 }
 
 /**
- * Registration Form Schema
+ * Staff Intake Registration Schema
  */
+export const staffRegistrationSchema = z
+  .object({
+    full_name: z
+      .string()
+      .min(2, 'Full name is required')
+      .transform(sanitizeInput),
+    email: z
+      .string()
+      .email('Invalid email address')
+      .transform((val) => val.trim().toLowerCase()),
+    password: passwordSchema,
+    confirmPassword: z.string(),
+    role: z.enum(['doctor', 'nurse'], { required_error: 'Role (Doctor or Nurse) selection is required' }),
+    professional_license_no: z
+      .string()
+      .min(4, 'Professional License / PRC ID Number is required (min 4 characters)')
+      .transform(sanitizeInput),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 export const registrationSchema = z
   .object({
     full_name: z
