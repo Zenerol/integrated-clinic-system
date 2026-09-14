@@ -82,7 +82,7 @@ export const PatientDashboard: React.FC = () => {
   const activeCount = appointments.filter((a) => a.status !== 'completed' && a.status !== 'cancelled' && a.status !== 'rejected').length;
 
   const tabs = [
-    { id: 'active', label: 'Active Consultation Pipeline', count: activeCount, icon: <Calendar className="w-4 h-4" /> },
+    { id: 'active', label: 'My Upcoming Appointments', count: activeCount, icon: <Calendar className="w-4 h-4" /> },
     { id: 'history', label: 'Medical Records & Prescriptions', count: historyRecords.length, icon: <Pill className="w-4 h-4" /> },
   ];
 

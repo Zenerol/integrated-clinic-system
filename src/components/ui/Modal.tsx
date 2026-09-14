@@ -38,7 +38,7 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 dark:bg-slate-950/85 animate-fade-in">
+    <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/70 dark:bg-slate-950/85 animate-fade-in">
       <div
         className={`w-full ${sizeMap[size]} bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]`}
       >
@@ -50,9 +50,11 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition duration-150 cursor-pointer"
+            className="flex items-center gap-1 text-rose-700 dark:text-rose-300 hover:text-rose-900 dark:hover:text-rose-100 px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 transition duration-150 cursor-pointer border border-rose-300 dark:border-rose-500/40 text-xs font-bold"
+            title="Close Window"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+            <span className="hidden sm:inline">Close</span>
           </button>
         </div>
 

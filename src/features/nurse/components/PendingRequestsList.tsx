@@ -72,7 +72,7 @@ export const PendingRequestsList: React.FC<PendingRequestsListProps> = ({
               </div>
 
               <p className="text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800 font-medium">
-                <strong className="text-slate-900 dark:text-slate-300 font-bold">Chief Complaint:</strong> {item.chief_complaint}
+                <strong className="text-slate-900 dark:text-slate-300 font-bold">Health Symptoms:</strong> {item.chief_complaint}
               </p>
 
               <div className="flex items-center gap-4 text-xs text-slate-600 dark:text-slate-400 pt-1 font-semibold">
@@ -86,12 +86,12 @@ export const PendingRequestsList: React.FC<PendingRequestsListProps> = ({
             {/* Actions */}
             <div className="flex items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 pt-3 md:pt-0 border-slate-200 dark:border-slate-800">
               <Button
-                variant="outline"
+                variant="cancel"
                 size="sm"
                 onClick={() => onReject(item)}
                 icon={<XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />}
               >
-                Reject
+                Decline
               </Button>
               <Button
                 variant="primary"
@@ -99,7 +99,7 @@ export const PendingRequestsList: React.FC<PendingRequestsListProps> = ({
                 onClick={() => onApprove(item)}
                 icon={<CheckCircle2 className="w-4 h-4" />}
               >
-                Approve Slot
+                Approve Appointment
               </Button>
             </div>
           </div>

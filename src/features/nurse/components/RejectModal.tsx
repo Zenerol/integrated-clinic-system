@@ -48,11 +48,11 @@ export const RejectModal: React.FC<RejectModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Reject Appointment Request"
+      title="Decline Appointment Request"
       subtitle={`Patient: ${appointment.patient.full_name}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose} disabled={loading}>
+          <Button variant="cancel" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
           <Button
@@ -61,7 +61,7 @@ export const RejectModal: React.FC<RejectModalProps> = ({
             onClick={handleSubmit}
             icon={<XCircle className="w-4 h-4" />}
           >
-            Confirm Rejection
+            Confirm Decline
           </Button>
         </>
       }
@@ -74,21 +74,21 @@ export const RejectModal: React.FC<RejectModalProps> = ({
           </div>
         )}
 
-        <p className="text-xs text-slate-300">
-          Rejection reasons will be logged in the appointment history and automatically sent to the patient.
+        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
+          The reason for declining will be sent to the patient so they can pick another date or time.
         </p>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-            Mandatory Rejection Reason <span className="text-rose-400">*</span>
+          <label className="text-xs font-semibold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+            Reason for Declining <span className="text-rose-600 dark:text-rose-400 font-black">*</span>
           </label>
           <textarea
             required
             rows={4}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="e.g. Requested time slot is unavailable; please re-book for tomorrow morning."
-            className="w-full bg-slate-800/80 border border-slate-700 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-slate-100 placeholder-slate-500 text-sm rounded-lg p-3 outline-none transition"
+            placeholder="e.g. Doctor is in meeting at this hour; please pick another time slot..."
+            className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm rounded-xl p-3 outline-none transition font-medium"
           />
         </div>
       </form>

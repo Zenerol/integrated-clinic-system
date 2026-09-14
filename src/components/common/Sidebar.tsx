@@ -57,7 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       return (
         <div className="space-y-1.5">
           <p className="px-3 text-[11px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-            Doctor Navigation
+            Doctor Menu
           </p>
           <NavLink
             to="/doctor"
@@ -72,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             }
           >
             <Stethoscope className="w-4 h-4 text-purple-700 dark:text-purple-400 shrink-0" />
-            <span>Clinical Queue</span>
+            <span>Doctor Patient Queue</span>
           </NavLink>
         </div>
       );
@@ -82,7 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       return (
         <div className="space-y-1.5">
           <p className="px-3 text-[11px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-            Nurse Desk Navigation
+            Nurse Menu
           </p>
           <NavLink
             to="/nurse"
@@ -97,7 +97,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             }
           >
             <HeartPulse className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
-            <span>Intake & Triage Desk</span>
+            <span>Nurse Check-In Desk</span>
           </NavLink>
         </div>
       );
@@ -107,7 +107,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     return (
       <div className="space-y-1.5">
         <p className="px-3 text-[11px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-          Patient Portal Navigation
+          Patient Menu
         </p>
         <NavLink
           to="/portal"
@@ -122,7 +122,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           }
         >
           <User className="w-4 h-4 text-teal-700 dark:text-teal-400 shrink-0" />
-          <span>Consultation Pipeline</span>
+          <span>My Appointments</span>
         </NavLink>
       </div>
     );

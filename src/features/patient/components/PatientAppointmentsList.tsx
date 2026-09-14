@@ -76,11 +76,10 @@ export const PatientAppointmentsList: React.FC<PatientAppointmentsListProps> = (
 
               {item.status === 'pending' && (
                 <Button
-                  variant="ghost"
+                  variant="cancel"
                   size="sm"
                   onClick={() => onCancelAppointment(item.id)}
                   icon={<XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />}
-                  className="text-xs text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 font-bold"
                 >
                   Cancel Request
                 </Button>
@@ -89,14 +88,14 @@ export const PatientAppointmentsList: React.FC<PatientAppointmentsListProps> = (
 
             {/* Chief Complaint */}
             <p className="text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800 font-medium">
-              <strong className="text-slate-900 dark:text-slate-300 font-bold">Chief Complaint:</strong> {item.chief_complaint}
+              <strong className="text-slate-900 dark:text-slate-300 font-bold">Health Symptoms:</strong> {item.chief_complaint}
             </p>
 
             {/* Rejection notice if rejected */}
             {item.status === 'rejected' && item.rejection_reason && (
               <div className="p-3 bg-rose-100 dark:bg-rose-500/10 border border-rose-300 dark:border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-900 dark:text-rose-300 text-xs font-bold">
                 <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
-                <span><strong>Rejection Reason:</strong> {item.rejection_reason}</span>
+                <span><strong>Reason Declining Visit:</strong> {item.rejection_reason}</span>
               </div>
             )}
 
@@ -104,7 +103,7 @@ export const PatientAppointmentsList: React.FC<PatientAppointmentsListProps> = (
             {item.status !== 'rejected' && item.status !== 'cancelled' && (
               <div className="pt-2">
                 <p className="text-[11px] font-extrabold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-2">
-                  Live Consultation Pipeline:
+                  Appointment Progress:
                 </p>
                 <div className="grid grid-cols-5 gap-1.5 text-center text-[10px] font-extrabold">
                   <div className={`py-2 rounded-lg transition ${step >= 1 ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500'}`}>
@@ -114,7 +113,7 @@ export const PatientAppointmentsList: React.FC<PatientAppointmentsListProps> = (
                     2. Approved
                   </div>
                   <div className={`py-2 rounded-lg transition ${step >= 3 ? 'bg-teal-100 dark:bg-teal-500/20 text-teal-950 dark:text-teal-300 border border-teal-300 dark:border-teal-500/40' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500'}`}>
-                    3. In Triage
+                    3. Nurse Check-In
                   </div>
                   <div className={`py-2 rounded-lg transition ${step >= 4 ? 'bg-purple-100 dark:bg-purple-500/20 text-purple-950 dark:text-purple-300 border border-purple-300 dark:border-purple-500/40' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500'}`}>
                     4. With Doctor

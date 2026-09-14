@@ -137,12 +137,12 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
       onClose={() => {
         if (!loading) onClose();
       }}
-      title="Book Consultation Appointment"
-      subtitle="Select doctor availability on calendar & submit triage request"
+      title="Book Doctor Visit"
+      subtitle="Pick an available date and time slot from the calendar"
       size="lg"
       footer={
         <>
-          <Button variant="ghost" onClick={onClose} disabled={loading}>
+          <Button variant="cancel" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
           <Button
@@ -152,7 +152,7 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
             onClick={() => handleSubmit()}
             icon={<CheckCircle2 className="w-4 h-4" />}
           >
-            {loading ? 'Submitting Booking...' : 'Confirm Appointment Slot'}
+            {loading ? 'Booking Visit...' : 'Confirm Appointment'}
           </Button>
         </>
       }
@@ -168,14 +168,14 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
         {/* Chief Complaint Input */}
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-            Chief Health Complaint / Reason for Visit <span className="text-rose-600 dark:text-rose-400 font-black">*</span>
+            Health Symptoms / Reason for Visit <span className="text-rose-600 dark:text-rose-400 font-black">*</span>
           </label>
           <textarea
             required
             rows={2}
             value={chiefComplaint}
             onChange={(e) => setChiefComplaint(e.target.value)}
-            placeholder="Describe your health symptoms e.g. persistent fever, sore throat, dizziness..."
+            placeholder="Tell us what you are feeling (e.g. fever, headache, stomach ache, cough)..."
             className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-teal-700 dark:focus:border-teal-400 focus:ring-2 focus:ring-teal-700 dark:focus:ring-teal-400 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm font-semibold rounded-xl p-3 outline-none transition"
           />
         </div>
@@ -192,12 +192,12 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
 
         {/* Consultation Mode Selection */}
         <Select
-          label="Consultation Mode & Coverage"
+          label="Appointment Type"
           value={consultationMode}
           onChange={(e) => setConsultationMode(e.target.value as 'school_free' | 'external_private')}
           options={[
-            { value: 'school_free', label: 'Campus Member Complimentary (Free)' },
-            { value: 'external_private', label: 'Community Outpatient Consultation (₱500.00)' },
+            { value: 'school_free', label: 'Student / Teacher / Staff (Free Visit)' },
+            { value: 'external_private', label: 'Guest / Visitor Visit (₱500.00)' },
           ]}
         />
       </form>

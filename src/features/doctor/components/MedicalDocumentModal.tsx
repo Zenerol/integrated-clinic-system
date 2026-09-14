@@ -37,13 +37,13 @@ export const MedicalDocumentModal: React.FC<MedicalDocumentModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Medical Clearance Document Preview"
+      title="Medical Certificate Preview"
       subtitle={docTitle}
       size="lg"
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
-            Close
+          <Button variant="cancel" onClick={onClose}>
+            Close Window
           </Button>
           <Button variant="primary" onClick={handlePrint} icon={<Printer className="w-4 h-4" />}>
             Print / Save PDF

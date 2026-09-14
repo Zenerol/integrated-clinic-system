@@ -76,12 +76,12 @@ export const VitalsIntakeModal: React.FC<VitalsIntakeModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Record Clinical Vitals & Triage Intake"
-      subtitle={`Patient: ${appointment.patient.full_name} (${appointment.patient.school_id_number || 'External Patient'})`}
+      title="Nurse Health Check"
+      subtitle={`Patient: ${appointment.patient.full_name} (${appointment.patient.school_id_number || 'Guest Patient'})`}
       size="lg"
       footer={
         <>
-          <Button variant="ghost" onClick={onClose} disabled={loading}>
+          <Button variant="cancel" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
           <Button
@@ -90,7 +90,7 @@ export const VitalsIntakeModal: React.FC<VitalsIntakeModalProps> = ({
             onClick={handleSubmit}
             icon={<CheckCircle2 className="w-4 h-4" />}
           >
-            Submit & Pass to Doctor
+            Save & Send to Doctor
           </Button>
         </>
       }
@@ -105,18 +105,18 @@ export const VitalsIntakeModal: React.FC<VitalsIntakeModalProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            label="Blood Pressure (Systolic/Diastolic)"
+            label="Blood Pressure (e.g. 120/80)"
             placeholder="e.g. 120/80"
             required
             leftIcon={<Activity className="w-4 h-4" />}
             value={bloodPressure}
             onChange={(e) => setBloodPressure(e.target.value)}
             error={fieldErrors.blood_pressure}
-            helperText="Format: 120/80 mmHg"
+            helperText="Format: 120/80"
           />
 
           <Input
-            label="Heart Rate (bpm)"
+            label="Heart Rate (BPM)"
             type="number"
             placeholder="72"
             leftIcon={<Heart className="w-4 h-4" />}
@@ -149,15 +149,15 @@ export const VitalsIntakeModal: React.FC<VitalsIntakeModalProps> = ({
         </div>
 
         <div className="flex flex-col gap-1.5 pt-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-            Nurse Observations & Chief Complaint Notes
+          <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            Nurse Notes & Observations
           </label>
           <textarea
             rows={3}
             value={nurseNotes}
             onChange={(e) => setNurseNotes(e.target.value)}
-            placeholder="Log any observed symptoms, allergies, or patient remarks..."
-            className="w-full bg-slate-800/80 border border-slate-700 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-slate-100 placeholder-slate-500 text-sm rounded-lg p-3 outline-none transition"
+            placeholder="Note any symptoms, allergies, or observations..."
+            className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm rounded-xl p-3 outline-none transition font-medium"
           />
         </div>
       </form>
