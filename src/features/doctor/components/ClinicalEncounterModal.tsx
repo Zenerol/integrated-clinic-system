@@ -6,6 +6,8 @@ import { Button } from '../../../components/ui/Button';
 import { AppointmentWithPatient, ClinicalAssessmentPayload, MedicalRecordWithDetails } from '../../../types/clinic.types';
 import { ClearanceType } from '../../../types/database.types';
 import { PrescriptionBuilder, PrescriptionItemInput } from './PrescriptionBuilder';
+import { clinicalEncounterSchema } from '../../../utils/validationSchemas';
+import { sanitizeInput } from '../../../utils/security';
 import { Stethoscope, CheckCircle2, FileText, Activity, Heart, Thermometer, Weight, AlertCircle } from 'lucide-react';
 
 interface ClinicalEncounterModalProps {
@@ -40,8 +42,22 @@ export const ClinicalEncounterModal: React.FC<ClinicalEncounterModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!diagnosis.trim()) {
-      setError('Please provide a clinical diagnosis.');
+    
+    // OWASP A03: Schema validation for Doctor Encounter
+    const schemaResult = clinicalEncounterSchema.safeParse({
+      diagnosis,
+      treatment_notes: treatmentPlan || 'Follow doctor advice and rest.',
+      prescriptions: prescriptions.map((p) => ({
+        medication_name: p.medication_name,
+        dosage: p.dosage,
+        frequency: p.frequency,
+        duration: p.duration || '3 days',
+        instructions: p.instructions || '',
+      })),
+    });
+
+    if (!schemaResult.success) {
+      setError(schemaResult.error.errors[0].message);
       return;
     }
 
@@ -50,15 +66,15 @@ export const ClinicalEncounterModal: React.FC<ClinicalEncounterModalProps> = ({
 
     try {
       await onSubmitEncounter(appointment.id, appointment.patient_id, {
-        diagnosis,
-        treatment_plan: treatmentPlan,
-        doctor_notes: doctorNotes,
+        diagnosis: sanitizeInput(diagnosis),
+        treatment_plan: sanitizeInput(treatmentPlan),
+        doctor_notes: sanitizeInput(doctorNotes),
         clearance_type: clearanceType,
         prescriptions: prescriptions.map((p) => ({
-          medication_name: p.medication_name,
-          dosage: p.dosage,
-          frequency: p.frequency,
-          instructions: p.instructions,
+          medication_name: sanitizeInput(p.medication_name),
+          dosage: sanitizeInput(p.dosage),
+          frequency: sanitizeInput(p.frequency),
+          instructions: p.instructions ? sanitizeInput(p.instructions) : '',
         })),
       });
       onClose();

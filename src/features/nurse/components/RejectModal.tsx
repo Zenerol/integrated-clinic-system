@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { AppointmentWithPatient } from '../../../types/clinic.types';
+import { rejectionNoteSchema } from '../../../utils/validationSchemas';
+import { sanitizeInput } from '../../../utils/security';
 import { AlertCircle, XCircle } from 'lucide-react';
 
 interface RejectModalProps {
@@ -25,15 +27,20 @@ export const RejectModal: React.FC<RejectModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reason.trim()) {
-      setError('Please provide a mandatory reason for rejecting this appointment.');
+    
+    // OWASP A03: Rejection Reason Schema Validation
+    const schemaResult = rejectionNoteSchema.safeParse({ rejection_reason: reason });
+    if (!schemaResult.success) {
+      setError(schemaResult.error.errors[0].message);
       return;
     }
+
+    const sanitizedReason = sanitizeInput(reason);
 
     setError(null);
     setLoading(true);
     try {
-      await onConfirmReject(appointment.id, reason.trim());
+      await onConfirmReject(appointment.id, sanitizedReason);
       setReason('');
       onClose();
     } catch (err: unknown) {

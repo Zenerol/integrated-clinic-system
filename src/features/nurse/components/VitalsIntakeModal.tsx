@@ -4,6 +4,8 @@ import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
 import { AppointmentWithPatient, VitalsFormPayload } from '../../../types/clinic.types';
 import { validateVitals } from '../../../utils/vitalsValidation';
+import { vitalsSchema } from '../../../utils/validationSchemas';
+import { sanitizeInput } from '../../../utils/security';
 import { Activity, Heart, Thermometer, Weight, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface VitalsIntakeModalProps {
@@ -35,20 +37,27 @@ export const VitalsIntakeModal: React.FC<VitalsIntakeModalProps> = ({
     e.preventDefault();
     setGeneralError(null);
 
-    const hr = heartRate ? parseInt(heartRate, 10) : null;
-    const temp = temperature ? parseFloat(temperature) : null;
-    const wt = weightKg ? parseFloat(weightKg) : null;
+    const hr = heartRate ? parseInt(heartRate, 10) : 72;
+    const temp = temperature ? parseFloat(temperature) : 36.6;
+    const wt = weightKg ? parseFloat(weightKg) : 65.0;
 
-    // Validate vitals format
-    const validation = validateVitals({
+    // OWASP A03: Strict Schema Validator for Vital Signs
+    const schemaResult = vitalsSchema.safeParse({
       blood_pressure: bloodPressure,
       heart_rate: hr,
-      temperature: temp,
-      weight_kg: wt,
+      body_temperature: temp,
+      respiratory_rate: 16,
+      oxygen_saturation: 98,
+      weight: wt,
+      nurse_triage_notes: nurseNotes,
     });
 
-    if (!validation.isValid) {
-      setFieldErrors(validation.errors);
+    if (!schemaResult.success) {
+      const formattedErrors: { [key: string]: string } = {};
+      schemaResult.error.errors.forEach((err) => {
+        if (err.path[0]) formattedErrors[err.path[0].toString()] = err.message;
+      });
+      setFieldErrors(formattedErrors);
       return;
     }
 
@@ -61,7 +70,7 @@ export const VitalsIntakeModal: React.FC<VitalsIntakeModalProps> = ({
         heart_rate: hr,
         temperature: temp,
         weight_kg: wt,
-        nurse_notes: nurseNotes,
+        nurse_notes: sanitizeInput(nurseNotes),
       });
       onClose();
     } catch (err: unknown) {

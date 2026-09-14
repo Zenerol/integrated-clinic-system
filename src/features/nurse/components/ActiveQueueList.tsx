@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppointmentWithPatient } from '../../../types/clinic.types';
 import { getStatusBadgeStyle, getPatientTypeBadgeStyle, formatDate } from '../../../utils/formatters';
+import { maskIdNumber } from '../../../utils/security';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { HeartPulse, CheckCircle2, User, Stethoscope, Clock } from 'lucide-react';
@@ -58,7 +59,7 @@ export const ActiveQueueList: React.FC<ActiveQueueListProps> = ({
                 </Badge>
                 {item.patient.school_id_number && (
                   <span className="text-xs text-slate-700 dark:text-slate-300 font-mono bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 font-bold">
-                    ID: {item.patient.school_id_number}
+                    ID: {maskIdNumber(item.patient.school_id_number)}
                   </span>
                 )}
               </div>

@@ -5,7 +5,9 @@ import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
 import { UserRole, PatientCategory } from '../../types/database.types';
-import { Mail, Lock, User, IdCard, Building2, Phone, MapPin, UserPlus, AlertCircle } from 'lucide-react';
+import { getPasswordStrength, passwordSchema } from '../../utils/validationSchemas';
+import { sanitizeInput } from '../../utils/security';
+import { Mail, Lock, User, IdCard, Building2, Phone, MapPin, UserPlus, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
   const { signUp } = useAuth();
@@ -26,6 +28,8 @@ export const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const passwordStrength = getPasswordStrength(password);
+
   const handleModeToggle = (mode: 'campus' | 'external') => {
     setCategoryMode(mode);
     if (mode === 'campus') {
@@ -39,6 +43,13 @@ export const RegisterPage: React.FC = () => {
     e.preventDefault();
     setErrorMessage(null);
 
+    // OWASP A07: Validate Password Complexity
+    const passResult = passwordSchema.safeParse(password);
+    if (!passResult.success) {
+      setErrorMessage(passResult.error.errors[0].message);
+      return;
+    }
+
     // Validation
     if (categoryMode === 'campus' && !schoolIdNumber.trim()) {
       setErrorMessage('School ID Number is required for campus members.');
@@ -48,15 +59,15 @@ export const RegisterPage: React.FC = () => {
     setLoading(true);
 
     const { error, profile: userProfile } = await signUp({
-      email,
+      email: email.trim().toLowerCase(),
       password,
-      fullName,
+      fullName: sanitizeInput(fullName),
       role,
       patientType: categoryMode === 'campus' ? patientType : 'external_client',
-      schoolIdNumber: categoryMode === 'campus' ? schoolIdNumber : undefined,
-      departmentOrCourse: categoryMode === 'campus' ? departmentOrCourse : undefined,
-      contactNumber,
-      address,
+      schoolIdNumber: categoryMode === 'campus' ? sanitizeInput(schoolIdNumber) : undefined,
+      departmentOrCourse: categoryMode === 'campus' ? sanitizeInput(departmentOrCourse) : undefined,
+      contactNumber: sanitizeInput(contactNumber),
+      address: sanitizeInput(address),
     });
 
     setLoading(false);
@@ -134,15 +145,47 @@ export const RegisterPage: React.FC = () => {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        <Input
-          label="Password"
-          type="password"
-          required
-          placeholder="••••••••"
-          leftIcon={<Lock className="w-4 h-4" />}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <div>
+          <Input
+            label="Password"
+            type="password"
+            required
+            placeholder="••••••••"
+            leftIcon={<Lock className="w-4 h-4" />}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {password.length > 0 && (
+            <div className="mt-2 p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700/60 text-xs">
+              <div className="flex items-center justify-between mb-1.5 font-bold">
+                <span className="text-slate-600 dark:text-slate-400">Password Strength:</span>
+                <span className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wider text-white font-black ${passwordStrength.color}`}>
+                  {passwordStrength.label}
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden mb-2">
+                <div
+                  className={`h-full transition-all duration-300 ${passwordStrength.color}`}
+                  style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-1 text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                <span className={passwordStrength.checks.minLength ? 'text-emerald-600 dark:text-emerald-400 flex items-center gap-1' : 'flex items-center gap-1'}>
+                  <CheckCircle2 className={`w-3 h-3 ${passwordStrength.checks.minLength ? 'text-emerald-500' : 'text-slate-400'}`} /> Min 8 Chars
+                </span>
+                <span className={passwordStrength.checks.uppercase ? 'text-emerald-600 dark:text-emerald-400 flex items-center gap-1' : 'flex items-center gap-1'}>
+                  <CheckCircle2 className={`w-3 h-3 ${passwordStrength.checks.uppercase ? 'text-emerald-500' : 'text-slate-400'}`} /> 1 Uppercase (A-Z)
+                </span>
+                <span className={passwordStrength.checks.number ? 'text-emerald-600 dark:text-emerald-400 flex items-center gap-1' : 'flex items-center gap-1'}>
+                  <CheckCircle2 className={`w-3 h-3 ${passwordStrength.checks.number ? 'text-emerald-500' : 'text-slate-400'}`} /> 1 Number (0-9)
+                </span>
+                <span className={passwordStrength.checks.special ? 'text-emerald-600 dark:text-emerald-400 flex items-center gap-1' : 'flex items-center gap-1'}>
+                  <CheckCircle2 className={`w-3 h-3 ${passwordStrength.checks.special ? 'text-emerald-500' : 'text-slate-400'}`} /> 1 Special (!@#$)
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Role Selection */}
         <Select

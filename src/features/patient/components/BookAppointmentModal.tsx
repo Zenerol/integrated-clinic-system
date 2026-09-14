@@ -5,6 +5,8 @@ import { Button } from '../../../components/ui/Button';
 import { CreateAppointmentPayload } from '../../../types/clinic.types';
 import { appointmentService } from '../../../services/appointmentService';
 import { AppointmentCalendarPicker } from './AppointmentCalendarPicker';
+import { bookAppointmentSchema } from '../../../utils/validationSchemas';
+import { sanitizeInput } from '../../../utils/security';
 import { CheckCircle2, AlertCircle, Calendar as CalendarIcon } from 'lucide-react';
 
 interface BookAppointmentModalProps {
@@ -98,6 +100,21 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
       return;
     }
 
+    // OWASP A03: Input Sanitization & Zod Schema Validation
+    const validationResult = bookAppointmentSchema.safeParse({
+      appointment_date: selectedDate ? selectedDate.toISOString() : '',
+      time_slot: selectedTime || '',
+      consultation_mode: consultationMode === 'external_private' ? 'teleconsultation' : 'in_person',
+      chief_complaint: chiefComplaint,
+    });
+
+    if (!validationResult.success) {
+      setError(validationResult.error.errors[0].message);
+      return;
+    }
+
+    const sanitizedComplaint = sanitizeInput(chiefComplaint);
+
     setError(null);
     isSubmittingRef.current = true;
     setLoading(true);
@@ -113,7 +130,7 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
       scheduledAtObj.setHours(hours, minutes, 0, 0);
 
       await onBookAppointment({
-        chief_complaint: chiefComplaint.trim(),
+        chief_complaint: sanitizedComplaint,
         scheduled_at: scheduledAtObj.toISOString(),
         consultation_mode: consultationMode,
         consultation_fee: consultationMode === 'external_private' ? 500.0 : 0.0,

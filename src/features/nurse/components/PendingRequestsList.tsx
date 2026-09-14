@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppointmentWithPatient } from '../../../types/clinic.types';
 import { getPatientTypeBadgeStyle, formatDate } from '../../../utils/formatters';
+import { maskIdNumber } from '../../../utils/security';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { CheckCircle2, XCircle, Clock, User, Calendar } from 'lucide-react';
@@ -56,7 +57,7 @@ export const PendingRequestsList: React.FC<PendingRequestsListProps> = ({
                 </Badge>
                 {item.patient.school_id_number && (
                   <span className="text-xs text-slate-700 dark:text-slate-300 font-mono bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 font-bold">
-                    ID: {item.patient.school_id_number}
+                    ID: {maskIdNumber(item.patient.school_id_number)}
                   </span>
                 )}
                 {item.patient.department_or_course && (

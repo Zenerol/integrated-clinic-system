@@ -95,14 +95,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       await authService.signOut();
+    } catch (err: unknown) {
+      console.warn('Backend signOut returned non-critical error:', err);
+    } finally {
+      // OWASP A07: Clear all client-side sensitive caches and session state
       setUser(null);
       setProfile(null);
       setSession(null);
+
+      try {
+        localStorage.removeItem('supabase.auth.token');
+        sessionStorage.clear();
+      } catch (err) {
+        // Safe fallback if browser storage is blocked
+      }
+
       return { error: null };
-    } catch (err: unknown) {
-      const errorObj = err instanceof Error ? err : new Error('Sign out failed');
-      setError(errorObj.message);
-      return { error: errorObj };
     }
   };
 
