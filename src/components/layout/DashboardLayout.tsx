@@ -6,7 +6,7 @@ import { Footer } from '../common/Footer';
 
 export const DashboardLayout: React.FC = () => {
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
       {/* Dynamic Top-Bar Notification Banner pinned above Navbar */}
       <NotificationBanner />
 

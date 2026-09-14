@@ -9,17 +9,19 @@ interface RoleRouteProps {
 }
 
 export const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles }) => {
-  const { profile, isLoading } = useAuth();
+  const { profile, user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
         <Spinner size="lg" label="Verifying access permissions..." />
       </div>
     );
   }
 
-  if (!profile || !allowedRoles.includes(profile.role)) {
+  const activeRole = profile?.role || (user?.user_metadata?.role as UserRole | undefined);
+
+  if (!user || !activeRole || !allowedRoles.includes(activeRole)) {
     return <Navigate to="/unauthorized" replace />;
   }
 

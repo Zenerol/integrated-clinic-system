@@ -69,22 +69,22 @@ export const Navbar: React.FC = () => {
           <button
             onClick={toggleTheme}
             type="button"
-            className={`px-3.5 py-2 rounded-xl border transition-all duration-200 flex items-center gap-1.5 text-xs font-black cursor-pointer shadow-md active:scale-95 ${
+            className={`px-3.5 py-2 rounded-xl border transition-all duration-200 flex items-center gap-1.5 text-xs font-black cursor-pointer shadow-sm active:scale-95 ${
               theme === 'light'
                 ? 'bg-slate-900 text-white border-slate-700 hover:bg-slate-800'
-                : 'bg-white text-slate-900 border-slate-200 hover:bg-slate-100'
+                : 'bg-teal-50 text-teal-900 border-teal-300 hover:bg-teal-100'
             }`}
             title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
           >
             {theme === 'light' ? (
               <>
                 <Moon className="w-4 h-4 text-purple-400 shrink-0" />
-                <span className="hidden sm:inline">🌙 Switch to Dark Mode</span>
+                <span className="hidden sm:inline">Switch to Dark Mode</span>
               </>
             ) : (
               <>
                 <Sun className="w-4 h-4 text-amber-500 shrink-0" />
-                <span className="hidden sm:inline">☀️ Switch to Light Mode</span>
+                <span className="hidden sm:inline">Switch to Light Mode</span>
               </>
             )}
           </button>

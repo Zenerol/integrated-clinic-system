@@ -124,11 +124,11 @@ export const NurseDashboard: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-100 flex items-center gap-2">
-            <HeartPulse className="w-7 h-7 text-emerald-400" />
+          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <HeartPulse className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
             Nurse Triage & Intake Desk
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-semibold">
             Review incoming requests, check-in patients, & record clinical vitals
           </p>
         </div>
@@ -150,22 +150,22 @@ export const NurseDashboard: React.FC = () => {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card className="!p-4 bg-amber-500/5 border-amber-500/20">
+        <Card className="!p-4 bg-amber-500/10 dark:bg-amber-500/5 border-amber-300 dark:border-amber-500/20">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-slate-400 font-semibold uppercase">Pending Requests</p>
-              <p className="text-2xl font-black text-amber-400 mt-1">{pendingAppointments.length}</p>
+              <p className="text-xs text-slate-700 dark:text-slate-400 font-extrabold uppercase tracking-wide">Pending Requests</p>
+              <p className="text-2xl font-black text-amber-800 dark:text-amber-400 mt-1">{pendingAppointments.length}</p>
             </div>
-            <Clock className="w-8 h-8 text-amber-400/40" />
+            <Clock className="w-8 h-8 text-amber-700/50 dark:text-amber-400/40" />
           </div>
         </Card>
-        <Card className="!p-4 bg-emerald-500/5 border-emerald-500/20">
+        <Card className="!p-4 bg-emerald-500/10 dark:bg-emerald-500/5 border-emerald-300 dark:border-emerald-500/20">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-slate-400 font-semibold uppercase">Patients In Queue</p>
-              <p className="text-2xl font-black text-emerald-400 mt-1">{activeQueue.length}</p>
+              <p className="text-xs text-slate-700 dark:text-slate-400 font-extrabold uppercase tracking-wide">Patients In Queue</p>
+              <p className="text-2xl font-black text-emerald-800 dark:text-emerald-400 mt-1">{activeQueue.length}</p>
             </div>
-            <Users className="w-8 h-8 text-emerald-400/40" />
+            <Users className="w-8 h-8 text-emerald-700/50 dark:text-emerald-400/40" />
           </div>
         </Card>
       </div>

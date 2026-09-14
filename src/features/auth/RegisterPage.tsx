@@ -74,19 +74,21 @@ export const RegisterPage: React.FC = () => {
   return (
     <div>
       <div className="text-center mb-6">
-        <h2 className="text-xl font-bold text-slate-100">Create Account</h2>
-        <p className="text-xs text-slate-400 mt-1">Register for medical consultations & queue tracking</p>
+        <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Create Account</h2>
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-semibold">
+          Register for medical consultations & queue tracking
+        </p>
       </div>
 
       {/* Segmented Selector for Campus vs External Outpatient */}
-      <div className="flex bg-slate-800/90 p-1 rounded-xl mb-5 border border-slate-700">
+      <div className="flex bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl mb-5 border border-slate-300 dark:border-slate-700">
         <button
           type="button"
           onClick={() => handleModeToggle('campus')}
-          className={`flex-1 py-2 text-xs font-bold rounded-lg transition duration-200 ${
+          className={`flex-1 py-2 text-xs font-black rounded-lg transition duration-200 cursor-pointer ${
             categoryMode === 'campus'
-              ? 'bg-teal-500 text-white shadow-md'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-teal-700 text-white shadow-sm'
+              : 'text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
           }`}
         >
           Campus Member
@@ -94,10 +96,10 @@ export const RegisterPage: React.FC = () => {
         <button
           type="button"
           onClick={() => handleModeToggle('external')}
-          className={`flex-1 py-2 text-xs font-bold rounded-lg transition duration-200 ${
+          className={`flex-1 py-2 text-xs font-black rounded-lg transition duration-200 cursor-pointer ${
             categoryMode === 'external'
-              ? 'bg-amber-500 text-white shadow-md'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-amber-600 text-white shadow-sm'
+              : 'text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
           }`}
         >
           Community Outpatient
@@ -105,8 +107,8 @@ export const RegisterPage: React.FC = () => {
       </div>
 
       {errorMessage && (
-        <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg flex items-center gap-2 text-rose-400 text-xs">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="mb-4 p-3 bg-rose-100 dark:bg-rose-500/10 border border-rose-300 dark:border-rose-500/30 rounded-lg flex items-center gap-2 text-rose-900 dark:text-rose-400 text-xs font-bold">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
           <span>{errorMessage}</span>
         </div>
       )}
@@ -217,10 +219,10 @@ export const RegisterPage: React.FC = () => {
         </Button>
       </form>
 
-      <div className="mt-5 pt-4 border-t border-slate-800 text-center">
-        <p className="text-xs text-slate-400">
+      <div className="mt-5 pt-4 border-t border-slate-300 dark:border-slate-800 text-center">
+        <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-bold">
           Already registered?{' '}
-          <Link to="/login" className="text-teal-400 hover:text-teal-300 font-semibold underline underline-offset-4">
+          <Link to="/login" className="text-teal-700 dark:text-teal-400 hover:underline font-black">
             Sign In
           </Link>
         </p>

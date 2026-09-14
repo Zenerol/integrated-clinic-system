@@ -13,21 +13,21 @@ export const AuthLayout: React.FC = () => {
         <button
           onClick={toggleTheme}
           type="button"
-          className={`px-4 py-2.5 rounded-xl border transition-all duration-200 flex items-center gap-2 text-xs font-black shadow-lg cursor-pointer active:scale-95 ${
+          className={`px-4 py-2.5 rounded-xl border transition-all duration-200 flex items-center gap-2 text-xs font-black shadow-md cursor-pointer active:scale-95 ${
             theme === 'light'
               ? 'bg-slate-900 text-white border-slate-700 hover:bg-slate-800'
-              : 'bg-white text-slate-900 border-slate-200 hover:bg-slate-100'
+              : 'bg-teal-50 text-teal-900 border-teal-300 hover:bg-teal-100'
           }`}
         >
           {theme === 'light' ? (
             <>
               <Moon className="w-4 h-4 text-purple-400 shrink-0" />
-              <span>🌙 Switch to Dark Mode</span>
+              <span>Switch to Dark Mode</span>
             </>
           ) : (
             <>
               <Sun className="w-4 h-4 text-amber-500 shrink-0" />
-              <span>☀️ Switch to Light Mode</span>
+              <span>Switch to Light Mode</span>
             </>
           )}
         </button>

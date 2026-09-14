@@ -91,11 +91,11 @@ export const PatientDashboard: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-100 flex items-center gap-2">
-            <User className="w-7 h-7 text-teal-400" />
+          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <User className="w-7 h-7 text-teal-700 dark:text-teal-400" />
             Patient Portal
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-semibold">
             Book consultations, track queue status, & view medical records
           </p>
         </div>

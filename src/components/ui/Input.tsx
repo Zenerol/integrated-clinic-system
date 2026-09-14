@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+import { AlertCircle } from 'lucide-react';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -20,17 +21,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="relative flex items-center">
           {leftIcon && (
-            <div className="absolute left-3.5 text-teal-600 dark:text-teal-400 pointer-events-none shrink-0">
+            <div className="absolute left-3.5 text-teal-700 dark:text-teal-400 pointer-events-none shrink-0">
               {leftIcon}
             </div>
           )}
           <input
             ref={ref}
-            className={`w-full min-h-[44px] bg-slate-50 dark:bg-slate-900 border ${
+            className={`w-full min-h-[44px] bg-white dark:bg-slate-900 border ${
               error
                 ? 'border-rose-500 text-rose-900 dark:text-rose-100 focus:ring-rose-500'
-                : 'border-slate-300 dark:border-slate-700 focus:border-teal-600 dark:focus:border-teal-400 focus:ring-teal-600 dark:focus:ring-teal-400'
-            } text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 text-sm font-semibold rounded-xl px-3.5 py-2.5 transition duration-200 outline-none focus:ring-2 ${
+                : 'border-slate-300 dark:border-slate-700 focus:border-teal-700 dark:focus:border-teal-400 focus:ring-teal-700 dark:focus:ring-teal-400'
+            } text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm font-semibold rounded-xl px-3.5 py-2.5 transition duration-200 outline-none focus:ring-2 ${
               leftIcon ? 'pl-10' : ''
             } ${rightIcon ? 'pr-10' : ''} ${className}`}
             {...props}
@@ -43,7 +44,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
         {error ? (
           <p className="text-xs sm:text-sm text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1">
-            <span>⚠️</span> {error}
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+            <span>{error}</span>
           </p>
         ) : helperText ? (
           <p className="text-xs text-slate-600 dark:text-slate-400 font-semibold">{helperText}</p>

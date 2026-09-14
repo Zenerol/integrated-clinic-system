@@ -50,17 +50,46 @@ export const authService = {
   },
 
   async getProfile(userId: string): Promise<Profile | null> {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-    if (error) {
-      if (error.code === 'PGRST116') return null; // record not found
-      throw error;
+      if (!error && data) {
+        return data as Profile;
+      }
+    } catch (e) {
+      console.warn('Profiles table fetch error:', e);
     }
-    return data as Profile;
+
+    // Fallback: Check auth user metadata
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData?.user && userData.user.id === userId) {
+      const meta = userData.user.user_metadata || {};
+      const fallbackProfile: Profile = {
+        id: userId,
+        full_name: meta.full_name || userData.user.email?.split('@')[0] || 'User',
+        role: (meta.role as Profile['role']) || 'client',
+        patient_type: (meta.patient_type as Profile['patient_type']) || 'student',
+        school_id_number: meta.school_id_number || null,
+        department_or_course: meta.department_or_course || null,
+        contact_number: meta.contact_number || null,
+        address: meta.address || null,
+        created_at: new Date().toISOString(),
+      };
+
+      try {
+        await supabase.from('profiles').upsert(fallbackProfile);
+      } catch (err) {
+        console.warn('Fallback profile upsert warning:', err);
+      }
+
+      return fallbackProfile;
+    }
+
+    return null;
   },
 
   async updateProfile(userId: string, updates: Partial<Profile>): Promise<Profile> {
