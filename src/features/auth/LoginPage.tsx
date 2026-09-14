@@ -25,7 +25,6 @@ export const LoginPage: React.FC = () => {
     if (error) {
       setErrorMessage(error.message || 'Invalid login credentials.');
     } else {
-      // Navigation is handled dynamically based on user role
       if (profile?.role === 'doctor') navigate('/doctor');
       else if (profile?.role === 'nurse') navigate('/nurse');
       else navigate('/portal');
@@ -35,12 +34,12 @@ export const LoginPage: React.FC = () => {
   return (
     <div>
       <div className="text-center mb-6">
-        <h2 className="text-xl font-bold text-slate-100">Welcome Back</h2>
-        <p className="text-xs text-slate-400 mt-1">Sign in to access your clinical dashboard</p>
+        <h2 className="text-xl font-extrabold text-slate-900 dark:text-slate-100">Welcome Back</h2>
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">Sign in to access your clinical dashboard</p>
       </div>
 
       {errorMessage && (
-        <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg flex items-center gap-2 text-rose-400 text-xs">
+        <div className="mb-4 p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-600 dark:text-rose-400 text-xs font-semibold">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -79,8 +78,8 @@ export const LoginPage: React.FC = () => {
         </Button>
       </form>
 
-      <div className="mt-6 pt-4 border-t border-slate-800">
-        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">
+      <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <p className="text-xs font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2 text-center">
           QA Quick Demo Logins:
         </p>
         <div className="grid grid-cols-2 gap-2 text-xs">
@@ -90,11 +89,11 @@ export const LoginPage: React.FC = () => {
               setEmail('doctor@clinic.test');
               setPassword('Password123!');
             }}
-            className="p-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-lg text-left transition"
+            className="p-2.5 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-100 dark:hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 rounded-xl text-left transition font-semibold"
           >
             <strong>MD Doctor:</strong>
             <br />
-            doctor@clinic.test
+            <span className="text-[11px] font-mono opacity-80">doctor@clinic.test</span>
           </button>
 
           <button
@@ -103,11 +102,11 @@ export const LoginPage: React.FC = () => {
               setEmail('nurse@clinic.test');
               setPassword('Password123!');
             }}
-            className="p-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-left transition"
+            className="p-2.5 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 rounded-xl text-left transition font-semibold"
           >
             <strong>Clinical Nurse:</strong>
             <br />
-            nurse@clinic.test
+            <span className="text-[11px] font-mono opacity-80">nurse@clinic.test</span>
           </button>
 
           <button
@@ -116,11 +115,11 @@ export const LoginPage: React.FC = () => {
               setEmail('student@clinic.test');
               setPassword('Password123!');
             }}
-            className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-left transition"
+            className="p-2.5 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30 rounded-xl text-left transition font-semibold"
           >
             <strong>Student:</strong>
             <br />
-            student@clinic.test
+            <span className="text-[11px] font-mono opacity-80">student@clinic.test</span>
           </button>
 
           <button
@@ -129,19 +128,19 @@ export const LoginPage: React.FC = () => {
               setEmail('external@clinic.test');
               setPassword('Password123!');
             }}
-            className="p-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-left transition"
+            className="p-2.5 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 rounded-xl text-left transition font-semibold"
           >
             <strong>Outpatient:</strong>
             <br />
-            external@clinic.test
+            <span className="text-[11px] font-mono opacity-80">external@clinic.test</span>
           </button>
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-slate-800/80 text-center">
-        <p className="text-xs text-slate-400">
+      <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 text-center">
+        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
           Don't have an account?{' '}
-          <Link to="/register" className="text-teal-400 hover:text-teal-300 font-semibold underline underline-offset-4">
+          <Link to="/register" className="text-teal-600 dark:text-teal-400 hover:underline font-extrabold">
             Register Here
           </Link>
         </p>
