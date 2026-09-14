@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
@@ -6,6 +6,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { getPatientTypeBadgeStyle } from '../../utils/formatters';
 import { Activity, LogOut, Bell, User, ShieldCheck, HeartPulse, Sun, Moon, Menu } from 'lucide-react';
 import { Badge } from '../ui/Badge';
+import { NotificationDropdown } from './NotificationDropdown';
 
 interface NavbarProps {
   onToggleSidebar?: () => void;
@@ -16,6 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   const { unreadCount } = useNotifications();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
@@ -26,7 +28,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
     if (!profile) return null;
     switch (profile.role) {
       case 'doctor':
-        return <Badge variant="purple" icon={<ShieldCheck className="w-3.5 h-3.5" />}>MD Doctor</Badge>;
+        return <Badge variant="purple" icon={<ShieldCheck className="w-3.5 h-3.5" />}>MD Physician</Badge>;
       case 'nurse':
         return <Badge variant="success" icon={<HeartPulse className="w-3.5 h-3.5" />}>Clinical Nurse</Badge>;
       case 'client':
@@ -52,41 +54,39 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   return (
     <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Left Section: Mobile Sidebar Toggle & Brand Logo */}
+        {/* Left Section: Mobile Sidebar Toggle & Brand Logo (Hidden on Desktop to avoid duplicate logo) */}
         <div className="flex items-center gap-3">
           {onToggleSidebar && (
             <button
               onClick={onToggleSidebar}
               type="button"
-              className="lg:hidden p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition"
-              title="Toggle Sidebar Navigation"
+              className="lg:hidden p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+              title="Toggle Navigation Menu"
             >
               <Menu className="w-5 h-5" />
             </button>
           )}
 
-          <Link to={getPortalLink()} className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-teal-700 flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition duration-200">
-              <Activity className="w-6 h-6" />
+          {/* Show Brand Logo on Mobile / Small screens only */}
+          <Link to={getPortalLink()} className="flex items-center gap-3 group lg:hidden">
+            <div className="w-9 h-9 rounded-xl bg-teal-700 flex items-center justify-center text-white shadow-sm">
+              <Activity className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-base font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none group-hover:text-teal-700 dark:group-hover:text-teal-400 transition">
+              <h1 className="text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">
                 CLINIC CARE
               </h1>
-              <p className="text-[10px] text-teal-700 dark:text-teal-400 uppercase tracking-widest font-extrabold mt-0.5">
-                School & Outpatient System
-              </p>
             </div>
           </Link>
         </div>
 
-        {/* User Controls & Theme Switcher */}
-        <div className="flex items-center gap-3">
+        {/* Right Section: Theme Toggle, Notifications, User Profile & Logout */}
+        <div className="flex items-center gap-3 ml-auto">
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
             type="button"
-            className={`px-3.5 py-2 rounded-xl border transition-all duration-200 flex items-center gap-1.5 text-xs font-black cursor-pointer shadow-sm active:scale-95 ${
+            className={`px-3 py-1.5 rounded-xl border transition-all duration-200 flex items-center gap-1.5 text-xs font-extrabold cursor-pointer shadow-sm active:scale-95 ${
               theme === 'light'
                 ? 'bg-slate-900 text-white border-slate-700 hover:bg-slate-800'
                 : 'bg-teal-50 text-teal-900 border-teal-300 hover:bg-teal-100'
@@ -95,13 +95,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
           >
             {theme === 'light' ? (
               <>
-                <Moon className="w-4 h-4 text-purple-400 shrink-0" />
-                <span className="hidden sm:inline">Switch to Dark Mode</span>
+                <Moon className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                <span className="hidden sm:inline">Dark Mode</span>
               </>
             ) : (
               <>
-                <Sun className="w-4 h-4 text-amber-500 shrink-0" />
-                <span className="hidden sm:inline">Switch to Light Mode</span>
+                <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span className="hidden sm:inline">Light Mode</span>
               </>
             )}
           </button>
@@ -113,37 +113,51 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                 {getRoleBadge()}
               </div>
 
-              {/* Profile Info */}
-              <div className="flex items-center gap-3 border-l border-slate-300 dark:border-slate-800 pl-3">
-                <div className="w-9 h-9 rounded-full bg-teal-100 dark:bg-slate-800 border border-teal-300 dark:border-slate-700 flex items-center justify-center text-teal-800 dark:text-teal-400">
-                  <User className="w-5 h-5" />
+              {/* User Profile Info */}
+              <div className="flex items-center gap-2.5 border-l border-slate-200 dark:border-slate-800 pl-3">
+                <div className="w-8 h-8 rounded-full bg-teal-100 dark:bg-slate-800 border border-teal-300 dark:border-slate-700 flex items-center justify-center text-teal-800 dark:text-teal-400 font-bold shrink-0">
+                  <User className="w-4 h-4" />
                 </div>
-                <div className="hidden sm:block text-left">
+                <div className="hidden sm:block text-left leading-tight">
                   <p className="text-xs font-black text-slate-900 dark:text-slate-100">{profile.full_name}</p>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-400 capitalize font-bold">{profile.role}</p>
                 </div>
               </div>
 
-              {/* Notifications Button */}
+              {/* Notifications Interactive Button & Dropdown */}
               <div className="relative">
                 <button
-                  className="p-2 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition relative"
-                  title="Notifications"
+                  onClick={() => setIsNotificationsOpen((prev) => !prev)}
+                  type="button"
+                  className={`p-2 rounded-xl border transition relative cursor-pointer ${
+                    isNotificationsOpen
+                      ? 'bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-500/40'
+                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent'
+                  }`}
+                  title="View Notifications"
                 >
-                  <Bell className="w-5 h-5" />
+                  <Bell className="w-4 h-4" />
                   {unreadCount > 0 && (
-                    <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-teal-600 rounded-full ring-2 ring-white dark:ring-slate-900 animate-pulse" />
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-rose-600 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 animate-pulse">
+                      {unreadCount}
+                    </span>
                   )}
                 </button>
+
+                {/* Notifications Mini Modal Dropdown */}
+                <NotificationDropdown
+                  isOpen={isNotificationsOpen}
+                  onClose={() => setIsNotificationsOpen(false)}
+                />
               </div>
 
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition border border-transparent hover:border-rose-300 dark:hover:border-rose-500/20"
-                title="Sign Out"
+                type="button"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-extrabold text-rose-700 dark:text-rose-300 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 rounded-xl transition border border-rose-300 dark:border-rose-500/40 cursor-pointer"
+                title="Sign Out of System"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Logout</span>
               </button>
             </>

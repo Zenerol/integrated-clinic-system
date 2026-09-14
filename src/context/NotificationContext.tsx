@@ -9,6 +9,7 @@ interface NotificationContextType {
   unreadCount: number;
   dismissNotification: (id: string) => Promise<void>;
   markAsRead: (id: string) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
   refreshNotifications: () => Promise<void>;
 }
 
@@ -76,6 +77,16 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
+  const markAllAsRead = async () => {
+    try {
+      const unreadItems = notifications.filter((n) => !n.is_read);
+      await Promise.all(unreadItems.map((n) => notificationService.markAsRead(n.id)));
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    } catch (err) {
+      console.error('Failed to mark all notifications read:', err);
+    }
+  };
+
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
@@ -86,6 +97,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         unreadCount,
         dismissNotification,
         markAsRead,
+        markAllAsRead,
         refreshNotifications: fetchNotifications,
       }}
     >

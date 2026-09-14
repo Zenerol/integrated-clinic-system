@@ -1,23 +1,12 @@
 import React from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import { getPatientTypeBadgeStyle } from '../../utils/formatters';
-import { Badge } from '../ui/Badge';
 import {
   Activity,
   User,
   HeartPulse,
   Stethoscope,
-  Clock,
-  Pill,
-  ShieldCheck,
-  LogOut,
-  Sun,
-  Moon,
   X,
-  FileText,
-  Calendar,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -26,29 +15,8 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { profile, signOut } = useAuth();
-  const { theme, toggleTheme } = useTheme();
-  const navigate = useNavigate();
+  const { profile } = useAuth();
   const location = useLocation();
-
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/login');
-  };
-
-  const getRoleBadge = () => {
-    if (!profile) return null;
-    switch (profile.role) {
-      case 'doctor':
-        return <Badge variant="purple" icon={<ShieldCheck className="w-3.5 h-3.5" />}>MD Physician</Badge>;
-      case 'nurse':
-        return <Badge variant="success" icon={<HeartPulse className="w-3.5 h-3.5" />}>Clinical Nurse</Badge>;
-      case 'client':
-      default:
-        const style = getPatientTypeBadgeStyle(profile.patient_type);
-        return <Badge variant={profile.patient_type === 'external_client' ? 'warning' : 'info'}>{style.label}</Badge>;
-    }
-  };
 
   const renderNavLinks = () => {
     if (!profile) return null;
@@ -173,51 +141,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <nav className="space-y-4">{renderNavLinks()}</nav>
         </div>
 
-        {/* Bottom User Card & Theme Switcher */}
-        <div className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-          {profile && (
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-teal-100 dark:bg-slate-700 border border-teal-300 dark:border-slate-600 flex items-center justify-center text-teal-800 dark:text-teal-300 font-black shrink-0">
-                <User className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-extrabold text-slate-900 dark:text-slate-100 truncate">
-                  {profile.full_name}
-                </p>
-                <div className="mt-0.5">{getRoleBadge()}</div>
-              </div>
-            </div>
-          )}
-
-          {/* Controls: Theme & Logout */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              type="button"
-              className="flex-1 py-2 px-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              {theme === 'light' ? (
-                <>
-                  <Moon className="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                  <span>Dark</span>
-                </>
-              ) : (
-                <>
-                  <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                  <span>Light</span>
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={handleLogout}
-              type="button"
-              className="flex-1 py-2 px-3 rounded-xl border border-rose-300 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 text-rose-800 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-500/20 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5 shrink-0" />
-              <span>Logout</span>
-            </button>
-          </div>
+        {/* Sidebar Footer Notice */}
+        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+          <p>© 2026 Clinic Care System</p>
         </div>
       </aside>
     </>
