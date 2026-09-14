@@ -4,17 +4,16 @@ import { useAuth } from '../../context/AuthContext';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
-import { UserRole, PatientCategory } from '../../types/database.types';
+import { PatientCategory } from '../../types/database.types';
 import { getPasswordStrength, passwordSchema } from '../../utils/validationSchemas';
 import { sanitizeInput } from '../../utils/security';
-import { Mail, Lock, User, IdCard, Building2, Phone, MapPin, UserPlus, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, IdCard, Building2, Phone, MapPin, UserPlus, AlertCircle, CheckCircle2, GraduationCap, UserCheck, Stethoscope } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
   const { signUp } = useAuth();
   const navigate = useNavigate();
 
   const [categoryMode, setCategoryMode] = useState<'campus' | 'external'>('campus');
-  const [role, setRole] = useState<UserRole>('client');
   const [patientType, setPatientType] = useState<PatientCategory>('student');
 
   const [fullName, setFullName] = useState('');
@@ -58,11 +57,11 @@ export const RegisterPage: React.FC = () => {
 
     setLoading(true);
 
-    const { error, profile: userProfile } = await signUp({
+    const { error } = await signUp({
       email: email.trim().toLowerCase(),
       password,
       fullName: sanitizeInput(fullName),
-      role,
+      role: 'client',
       patientType: categoryMode === 'campus' ? patientType : 'external_client',
       schoolIdNumber: categoryMode === 'campus' ? sanitizeInput(schoolIdNumber) : undefined,
       departmentOrCourse: categoryMode === 'campus' ? sanitizeInput(departmentOrCourse) : undefined,
@@ -75,180 +74,184 @@ export const RegisterPage: React.FC = () => {
     if (error) {
       setErrorMessage(error.message || 'Registration failed.');
     } else {
-      const activeRole = userProfile?.role || role;
-      if (activeRole === 'doctor') navigate('/doctor');
-      else if (activeRole === 'nurse') navigate('/nurse');
-      else navigate('/portal');
+      navigate('/portal');
     }
   };
 
   return (
-    <div>
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Create Account</h2>
+    <div className="space-y-5">
+      <div className="text-center">
+        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+          Create Patient Account
+        </h2>
         <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-semibold">
           Register for medical consultations & queue tracking
         </p>
       </div>
 
-      {/* Segmented Selector for Campus vs External Outpatient */}
-      <div className="flex bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl mb-5 border border-slate-300 dark:border-slate-700">
-        <button
-          type="button"
-          onClick={() => handleModeToggle('campus')}
-          className={`flex-1 py-2 text-xs font-black rounded-lg transition duration-200 cursor-pointer ${
-            categoryMode === 'campus'
-              ? 'bg-teal-700 text-white shadow-sm'
-              : 'text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-          }`}
-        >
-          Campus Member
-        </button>
-        <button
-          type="button"
-          onClick={() => handleModeToggle('external')}
-          className={`flex-1 py-2 text-xs font-black rounded-lg transition duration-200 cursor-pointer ${
-            categoryMode === 'external'
-              ? 'bg-amber-600 text-white shadow-sm'
-              : 'text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-          }`}
-        >
-          Community Outpatient
-        </button>
+      {/* Visual Category Selection Cards (Campus vs Community Outpatient) */}
+      <div>
+        <label className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 block">
+          Select Patient Category:
+        </label>
+        <div className="grid grid-cols-2 gap-2.5">
+          <button
+            type="button"
+            onClick={() => handleModeToggle('campus')}
+            className={`p-3 rounded-2xl border text-left transition duration-200 cursor-pointer flex items-center gap-3 ${
+              categoryMode === 'campus'
+                ? 'bg-teal-50 dark:bg-teal-500/15 border-teal-500 text-teal-950 dark:text-teal-200 ring-2 ring-teal-500/30 shadow-xs'
+                : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-400 hover:border-slate-300'
+            }`}
+          >
+            <div className={`p-2 rounded-xl shrink-0 ${categoryMode === 'campus' ? 'bg-teal-700 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+              <GraduationCap className="w-5 h-5" />
+            </div>
+            <div>
+              <strong className="block text-xs font-black">Campus Member</strong>
+              <span className="text-[10px] opacity-80 font-medium">Student / Faculty</span>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleModeToggle('external')}
+            className={`p-3 rounded-2xl border text-left transition duration-200 cursor-pointer flex items-center gap-3 ${
+              categoryMode === 'external'
+                ? 'bg-amber-50 dark:bg-amber-500/15 border-amber-500 text-amber-950 dark:text-amber-200 ring-2 ring-amber-500/30 shadow-xs'
+                : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-400 hover:border-slate-300'
+            }`}
+          >
+            <div className={`p-2 rounded-xl shrink-0 ${categoryMode === 'external' ? 'bg-amber-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+              <UserCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <strong className="block text-xs font-black">Outpatient</strong>
+              <span className="text-[10px] opacity-80 font-medium">Community Guest</span>
+            </div>
+          </button>
+        </div>
       </div>
 
       {errorMessage && (
-        <div className="mb-4 p-3 bg-rose-100 dark:bg-rose-500/10 border border-rose-300 dark:border-rose-500/30 rounded-lg flex items-center gap-2 text-rose-900 dark:text-rose-400 text-xs font-bold">
+        <div className="p-3 bg-rose-100 dark:bg-rose-500/10 border border-rose-300 dark:border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-900 dark:text-rose-300 text-xs font-bold">
           <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
           <span>{errorMessage}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
-        <Input
-          label="Full Name"
-          type="text"
-          required
-          placeholder="John Doe"
-          leftIcon={<User className="w-4 h-4" />}
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-        />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Section 1: Account Info */}
+        <div className="space-y-3 p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <h4 className="text-[11px] font-black uppercase tracking-wider text-teal-700 dark:text-teal-400">
+            1. Basic Information
+          </h4>
 
-        <Input
-          label="Email Address"
-          type="email"
-          required
-          placeholder="yourname@domain.com"
-          leftIcon={<Mail className="w-4 h-4" />}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <div>
           <Input
-            label="Password"
-            type="password"
+            label="Full Name"
+            type="text"
             required
-            placeholder="••••••••"
-            leftIcon={<Lock className="w-4 h-4" />}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            placeholder="John Doe"
+            leftIcon={<User className="w-4 h-4" />}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
           />
-          {password.length > 0 && (
-            <div className="mt-2 p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700/60 text-xs">
-              <div className="flex items-center justify-between mb-1.5 font-bold">
-                <span className="text-slate-600 dark:text-slate-400">Password Strength:</span>
-                <span className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wider text-white font-black ${passwordStrength.color}`}>
-                  {passwordStrength.label}
-                </span>
+
+          <Input
+            label="Email Address"
+            type="email"
+            required
+            placeholder="yourname@domain.com"
+            leftIcon={<Mail className="w-4 h-4" />}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <div>
+            <Input
+              label="Password"
+              type="password"
+              required
+              placeholder="••••••••"
+              leftIcon={<Lock className="w-4 h-4" />}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {password.length > 0 && (
+              <div className="mt-2 p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/60 text-xs space-y-1.5">
+                <div className="flex items-center justify-between font-bold">
+                  <span className="text-slate-600 dark:text-slate-400">Strength:</span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wider text-white font-black ${passwordStrength.color}`}>
+                    {passwordStrength.label}
+                  </span>
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-300 ${passwordStrength.color}`}
+                    style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
+                  />
+                </div>
               </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden mb-2">
-                <div
-                  className={`h-full transition-all duration-300 ${passwordStrength.color}`}
-                  style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-1 text-[11px] font-semibold text-slate-600 dark:text-slate-400">
-                <span className={passwordStrength.checks.minLength ? 'text-emerald-600 dark:text-emerald-400 flex items-center gap-1' : 'flex items-center gap-1'}>
-                  <CheckCircle2 className={`w-3 h-3 ${passwordStrength.checks.minLength ? 'text-emerald-500' : 'text-slate-400'}`} /> Min 8 Chars
-                </span>
-                <span className={passwordStrength.checks.uppercase ? 'text-emerald-600 dark:text-emerald-400 flex items-center gap-1' : 'flex items-center gap-1'}>
-                  <CheckCircle2 className={`w-3 h-3 ${passwordStrength.checks.uppercase ? 'text-emerald-500' : 'text-slate-400'}`} /> 1 Uppercase (A-Z)
-                </span>
-                <span className={passwordStrength.checks.number ? 'text-emerald-600 dark:text-emerald-400 flex items-center gap-1' : 'flex items-center gap-1'}>
-                  <CheckCircle2 className={`w-3 h-3 ${passwordStrength.checks.number ? 'text-emerald-500' : 'text-slate-400'}`} /> 1 Number (0-9)
-                </span>
-                <span className={passwordStrength.checks.special ? 'text-emerald-600 dark:text-emerald-400 flex items-center gap-1' : 'flex items-center gap-1'}>
-                  <CheckCircle2 className={`w-3 h-3 ${passwordStrength.checks.special ? 'text-emerald-500' : 'text-slate-400'}`} /> 1 Special (!@#$)
-                </span>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
-        {/* Role Selection */}
-        <Select
-          label="Account Role"
-          value={role}
-          onChange={(e) => setRole(e.target.value as UserRole)}
-          options={[
-            { value: 'client', label: 'Patient / Client' },
-            { value: 'nurse', label: 'Clinical Nurse' },
-            { value: 'doctor', label: 'Medical Doctor (MD)' },
-          ]}
-        />
+        {/* Section 2: Identity / Contact Details */}
+        <div className="space-y-3 p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <h4 className="text-[11px] font-black uppercase tracking-wider text-teal-700 dark:text-teal-400">
+            2. {categoryMode === 'campus' ? 'Campus Credentials' : 'Contact & Address'}
+          </h4>
 
-        {/* Dynamic Campus Fields */}
-        {categoryMode === 'campus' ? (
-          <>
-            <Select
-              label="Campus Role"
-              value={patientType}
-              onChange={(e) => setPatientType(e.target.value as PatientCategory)}
-              options={[
-                { value: 'student', label: 'Student' },
-                { value: 'faculty_staff', label: 'Faculty / Staff Member' },
-              ]}
-            />
-            <Input
-              label="School ID Number"
-              type="text"
-              required
-              placeholder="e.g. 2024-0012"
-              leftIcon={<IdCard className="w-4 h-4" />}
-              value={schoolIdNumber}
-              onChange={(e) => setSchoolIdNumber(e.target.value)}
-            />
-            <Input
-              label="Department / Course"
-              type="text"
-              placeholder="e.g. BS Information Technology"
-              leftIcon={<Building2 className="w-4 h-4" />}
-              value={departmentOrCourse}
-              onChange={(e) => setDepartmentOrCourse(e.target.value)}
-            />
-          </>
-        ) : (
-          <>
-            <Input
-              label="Contact Phone Number"
-              type="tel"
-              placeholder="e.g. +63 912 345 6789"
-              leftIcon={<Phone className="w-4 h-4" />}
-              value={contactNumber}
-              onChange={(e) => setContactNumber(e.target.value)}
-            />
-            <Input
-              label="Home Address"
-              type="text"
-              placeholder="Street, Barangay, City"
-              leftIcon={<MapPin className="w-4 h-4" />}
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-            />
-          </>
-        )}
+          {categoryMode === 'campus' ? (
+            <>
+              <Select
+                label="Campus Role"
+                value={patientType}
+                onChange={(e) => setPatientType(e.target.value as PatientCategory)}
+                options={[
+                  { value: 'student', label: 'Enrolled Student' },
+                  { value: 'faculty_staff', label: 'Faculty / Staff Member' },
+                ]}
+              />
+              <Input
+                label="School ID Number"
+                type="text"
+                required
+                placeholder="e.g. 2024-0012"
+                leftIcon={<IdCard className="w-4 h-4" />}
+                value={schoolIdNumber}
+                onChange={(e) => setSchoolIdNumber(e.target.value)}
+              />
+              <Input
+                label="Department / Course"
+                type="text"
+                placeholder="e.g. BS Information Technology"
+                leftIcon={<Building2 className="w-4 h-4" />}
+                value={departmentOrCourse}
+                onChange={(e) => setDepartmentOrCourse(e.target.value)}
+              />
+            </>
+          ) : (
+            <>
+              <Input
+                label="Contact Phone Number"
+                type="tel"
+                placeholder="e.g. +63 912 345 6789"
+                leftIcon={<Phone className="w-4 h-4" />}
+                value={contactNumber}
+                onChange={(e) => setContactNumber(e.target.value)}
+              />
+              <Input
+                label="Home Address"
+                type="text"
+                placeholder="Street, Barangay, City"
+                leftIcon={<MapPin className="w-4 h-4" />}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </>
+          )}
+        </div>
 
         <Button
           type="submit"
@@ -256,17 +259,23 @@ export const RegisterPage: React.FC = () => {
           size="lg"
           isLoading={loading}
           icon={<UserPlus className="w-4 h-4" />}
-          className="mt-2 w-full"
+          className="mt-2 w-full shadow-md"
         >
-          Complete Registration
+          Create Patient Account
         </Button>
       </form>
 
-      <div className="mt-5 pt-4 border-t border-slate-300 dark:border-slate-800 text-center">
+      <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 text-center flex flex-col gap-2">
         <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-bold">
           Already registered?{' '}
           <Link to="/login" className="text-teal-700 dark:text-teal-400 hover:underline font-black">
             Sign In
+          </Link>
+        </p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
+          Medical Doctor or Nurse?{' '}
+          <Link to="/staff/register" className="text-purple-600 dark:text-purple-400 hover:underline font-bold flex items-center justify-center gap-1">
+            <Stethoscope className="w-3.5 h-3.5" /> Staff Self-Registration →
           </Link>
         </p>
       </div>

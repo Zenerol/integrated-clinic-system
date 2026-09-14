@@ -29,6 +29,17 @@
   }
 }
 
+/* Background Textures & Mesh Gradients */
+.bg-dot-pattern {
+  background-image: radial-gradient(rgba(13, 148, 136, 0.18) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+html.dark .bg-dot-pattern {
+  background-image: radial-gradient(rgba(20, 184, 166, 0.12) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
 
 
 /* Glassmorphism & High-Contrast Cards */

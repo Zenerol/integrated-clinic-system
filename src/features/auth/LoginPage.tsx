@@ -109,83 +109,68 @@ export const LoginPage: React.FC = () => {
 
       {/* QA Quick Demo Logins Section */}
       <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800">
-        <p className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 text-center">
-          Test Accounts (Click to Autofill):
+        <p className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2.5 text-center">
+          Quick Demo Accounts (Autofill):
         </p>
-        <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
           <button
             type="button"
             onClick={() => fillCredentials('admin@clinic.test')}
-            className="p-2.5 bg-rose-50 dark:bg-rose-500/15 hover:bg-rose-100 dark:hover:bg-rose-500/25 text-rose-950 dark:text-rose-200 border border-rose-200 dark:border-rose-500/30 rounded-xl text-left transition font-extrabold cursor-pointer shadow-xs active:scale-95 flex items-start gap-2 col-span-2"
+            className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-slate-200 dark:border-slate-700"
           >
-            <ShieldCheck className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <strong className="text-rose-900 dark:text-rose-300 block text-xs">Clinic Administrator</strong>
-              <span className="text-[10px] font-mono opacity-80 block truncate">admin@clinic.test</span>
-            </div>
+            <ShieldCheck className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+            <span>Admin</span>
           </button>
 
           <button
             type="button"
             onClick={() => fillCredentials('doctor@clinic.test')}
-            className="p-2.5 bg-purple-50 dark:bg-purple-500/15 hover:bg-purple-100 dark:hover:bg-purple-500/25 text-purple-950 dark:text-purple-200 border border-purple-200 dark:border-purple-500/30 rounded-xl text-left transition font-extrabold cursor-pointer shadow-xs active:scale-95 flex items-start gap-2"
+            className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-slate-200 dark:border-slate-700"
           >
-            <Stethoscope className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <strong className="text-purple-900 dark:text-purple-300 block text-xs">MD Doctor</strong>
-              <span className="text-[10px] font-mono opacity-80 block truncate">doctor@clinic.test</span>
-            </div>
+            <Stethoscope className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+            <span>Doctor</span>
           </button>
 
           <button
             type="button"
             onClick={() => fillCredentials('nurse@clinic.test')}
-            className="p-2.5 bg-emerald-50 dark:bg-emerald-500/15 hover:bg-emerald-100 dark:hover:bg-emerald-500/25 text-emerald-950 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-500/30 rounded-xl text-left transition font-extrabold cursor-pointer shadow-xs active:scale-95 flex items-start gap-2"
+            className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-slate-200 dark:border-slate-700"
           >
-            <HeartPulse className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <strong className="text-emerald-900 dark:text-emerald-300 block text-xs">Clinical Nurse</strong>
-              <span className="text-[10px] font-mono opacity-80 block truncate">nurse@clinic.test</span>
-            </div>
+            <HeartPulse className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+            <span>Nurse</span>
           </button>
 
           <button
             type="button"
             onClick={() => fillCredentials('student@clinic.test')}
-            className="p-2.5 bg-blue-50 dark:bg-blue-500/15 hover:bg-blue-100 dark:hover:bg-blue-500/25 text-blue-950 dark:text-blue-200 border border-blue-200 dark:border-blue-500/30 rounded-xl text-left transition font-extrabold cursor-pointer shadow-xs active:scale-95 flex items-start gap-2"
+            className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-slate-200 dark:border-slate-700"
           >
-            <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <strong className="text-blue-900 dark:text-blue-300 block text-xs">Student</strong>
-              <span className="text-[10px] font-mono opacity-80 block truncate">student@clinic.test</span>
-            </div>
+            <GraduationCap className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            <span>Student</span>
           </button>
 
           <button
             type="button"
             onClick={() => fillCredentials('external@clinic.test')}
-            className="p-2.5 bg-amber-50 dark:bg-amber-500/15 hover:bg-amber-100 dark:hover:bg-amber-500/25 text-amber-950 dark:text-amber-200 border border-amber-200 dark:border-amber-500/30 rounded-xl text-left transition font-extrabold cursor-pointer shadow-xs active:scale-95 flex items-start gap-2"
+            className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-slate-200 dark:border-slate-700"
           >
-            <UserCheck className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <strong className="text-amber-900 dark:text-amber-300 block text-xs">Outpatient</strong>
-              <span className="text-[10px] font-mono opacity-80 block truncate">external@clinic.test</span>
-            </div>
+            <UserCheck className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span>Outpatient</span>
           </button>
         </div>
       </div>
 
-      <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 text-center flex flex-col gap-2">
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-bold">
+      <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 text-center flex flex-col gap-2">
+        <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-bold">
           Don't have an account?{' '}
           <Link to="/register" className="text-teal-700 dark:text-teal-400 hover:underline font-black">
-            Register as Patient
+            Create Patient Account
           </Link>
         </p>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Medical Doctor or Clinical Nurse?{' '}
+        <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
+          Medical Doctor or Nurse?{' '}
           <Link to="/staff/register" className="text-purple-600 dark:text-purple-400 hover:underline font-bold">
-            Staff Self-Registration
+            Staff Self-Registration →
           </Link>
         </p>
       </div>
