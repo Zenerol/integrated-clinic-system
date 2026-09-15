@@ -83,6 +83,8 @@ export const notificationService = {
         .select()
         .single();
       if (retryError) throw retryError;
+      return retryData;
+    }
     return data;
   },
 

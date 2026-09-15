@@ -93,20 +93,27 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
   });
   const [formError, setFormError] = useState<string | null>(null);
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const members = await adminService.getAllMembers();
       setAllMembers(members);
     } catch (err) {
       console.error('Failed to load clinic members data:', err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadData();
+    loadData(false);
+
+    // Auto-refresh admin directory and staff applications every 5 seconds
+    const interval = setInterval(() => {
+      loadData(true);
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Filtered lists

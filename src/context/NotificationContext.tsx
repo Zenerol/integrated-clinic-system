@@ -59,7 +59,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   useEffect(() => {
     fetchNotifications();
 
-    // Subscribe to real-time additions
+    // 1. Automatic 5-second polling interval for real-time background synchronization
+    const autoRefreshTimer = setInterval(() => {
+      fetchNotifications();
+    }, 5000);
+
+    // 2. Subscribe to real-time additions via Supabase Realtime WebSockets
     const subscription = notificationService.subscribeToNotifications((newNotification) => {
       // Check if relevant to current user/role
       const isForUser = !newNotification.recipient_id || newNotification.recipient_id === user?.id;
@@ -67,6 +72,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (isForUser && isForRole) {
         setNotifications((prev) => {
+          if (prev.some((n) => n.id === newNotification.id)) return prev;
           const updated = [newNotification, ...prev];
           processNotificationTiers(updated);
           return updated;
@@ -75,6 +81,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     });
 
     return () => {
+      clearInterval(autoRefreshTimer);
       subscription.unsubscribe();
     };
   }, [user?.id, profile?.role]);
