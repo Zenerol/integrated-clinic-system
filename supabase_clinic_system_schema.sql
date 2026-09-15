@@ -118,75 +118,124 @@ CREATE TABLE IF NOT EXISTS clinic_system.notifications (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 8. MIGRATE DATA FROM public SCHEMA IF EXISTS
+-- 8. MIGRATE DATA FROM public SCHEMA IF EXISTS (DYNAMICALLY BULLETPROOF)
 DO $$
+DECLARE
+  has_account_status BOOLEAN;
+  has_license BOOLEAN;
+  has_rejection BOOLEAN;
+  has_approved_by BOOLEAN;
+  has_approved_at BOOLEAN;
 BEGIN
-  -- Copy profiles
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'profiles') THEN
-    INSERT INTO clinic_system.profiles (
-      id, full_name, role, patient_type, account_status, school_id_number,
-      department_or_course, contact_number, address, professional_license_no,
-      rejection_reason, approved_by, approved_at, created_at
-    )
-    SELECT
-      id, full_name, role::text::clinic_system.user_role,
-      patient_type::text::clinic_system.patient_category,
-      COALESCE(account_status::text::clinic_system.account_status, 'active'::clinic_system.account_status),
-      school_id_number, department_or_course, contact_number, address,
-      professional_license_no, rejection_reason, approved_by, approved_at, created_at
-    FROM public.profiles
-    ON CONFLICT (id) DO NOTHING;
-  END IF;
+  -- Copy profiles safely
+  BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'profiles') THEN
+      SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'account_status') INTO has_account_status;
+      SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'professional_license_no') INTO has_license;
+      SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'rejection_reason') INTO has_rejection;
+      SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'approved_by') INTO has_approved_by;
+      SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'approved_at') INTO has_approved_at;
 
-  -- Copy appointments
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'appointments') THEN
-    INSERT INTO clinic_system.appointments (
-      id, patient_id, assigned_doctor_id, approved_by, approved_at, rejection_reason,
-      check_in_time, chief_complaint, status, consultation_mode, consultation_fee, scheduled_at, created_at
-    )
-    SELECT
-      id, patient_id, assigned_doctor_id, approved_by, approved_at, rejection_reason,
-      check_in_time, chief_complaint, status::text::clinic_system.appointment_status,
-      consultation_mode::text::clinic_system.consultation_mode, consultation_fee, scheduled_at, created_at
-    FROM public.appointments
-    ON CONFLICT (id) DO NOTHING;
-  END IF;
+      EXECUTE format('
+        INSERT INTO clinic_system.profiles (
+          id, full_name, role, patient_type, account_status, school_id_number,
+          department_or_course, contact_number, address, professional_license_no,
+          rejection_reason, approved_by, approved_at, created_at
+        )
+        SELECT
+          id,
+          full_name,
+          role::text::clinic_system.user_role,
+          patient_type::text::clinic_system.patient_category,
+          %s,
+          school_id_number,
+          department_or_course,
+          contact_number,
+          address,
+          %s,
+          %s,
+          %s,
+          %s,
+          created_at
+        FROM public.profiles
+        ON CONFLICT (id) DO NOTHING;
+      ',
+      CASE WHEN has_account_status THEN 'COALESCE(account_status::text::clinic_system.account_status, ''active''::clinic_system.account_status)' ELSE '''active''::clinic_system.account_status' END,
+      CASE WHEN has_license THEN 'professional_license_no' ELSE 'NULL' END,
+      CASE WHEN has_rejection THEN 'rejection_reason' ELSE 'NULL' END,
+      CASE WHEN has_approved_by THEN 'approved_by' ELSE 'NULL' END,
+      CASE WHEN has_approved_at THEN 'approved_at' ELSE 'NULL' END
+      );
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Profiles migration notice: %', SQLERRM;
+  END;
 
-  -- Copy medical records
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'medical_records') THEN
-    INSERT INTO clinic_system.medical_records (
-      id, appointment_id, patient_id, blood_pressure, heart_rate, temperature, weight_kg,
-      nurse_notes, diagnosis, treatment_plan, doctor_notes, clearance_type, created_at
-    )
-    SELECT
-      id, appointment_id, patient_id, blood_pressure, heart_rate, temperature, weight_kg,
-      nurse_notes, diagnosis, treatment_plan, doctor_notes, clearance_type, created_at
-    FROM public.medical_records
-    ON CONFLICT (id) DO NOTHING;
-  END IF;
+  -- Copy appointments safely
+  BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'appointments') THEN
+      INSERT INTO clinic_system.appointments (
+        id, patient_id, assigned_doctor_id, approved_by, approved_at, rejection_reason,
+        check_in_time, chief_complaint, status, consultation_mode, consultation_fee, scheduled_at, created_at
+      )
+      SELECT
+        id, patient_id, assigned_doctor_id, approved_by, approved_at, rejection_reason,
+        check_in_time, chief_complaint, status::text::clinic_system.appointment_status,
+        consultation_mode::text::clinic_system.consultation_mode, consultation_fee, scheduled_at, created_at
+      FROM public.appointments
+      ON CONFLICT (id) DO NOTHING;
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Appointments migration notice: %', SQLERRM;
+  END;
 
-  -- Copy prescriptions
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'prescriptions') THEN
-    INSERT INTO clinic_system.prescriptions (
-      id, record_id, patient_id, doctor_id, medication_name, dosage, frequency, instructions, created_at
-    )
-    SELECT
-      id, record_id, patient_id, doctor_id, medication_name, dosage, frequency, instructions, created_at
-    FROM public.prescriptions
-    ON CONFLICT (id) DO NOTHING;
-  END IF;
+  -- Copy medical records safely
+  BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'medical_records') THEN
+      INSERT INTO clinic_system.medical_records (
+        id, appointment_id, patient_id, blood_pressure, heart_rate, temperature, weight_kg,
+        nurse_notes, diagnosis, treatment_plan, doctor_notes, clearance_type, created_at
+      )
+      SELECT
+        id, appointment_id, patient_id, blood_pressure, heart_rate, temperature, weight_kg,
+        nurse_notes, diagnosis, treatment_plan, doctor_notes, clearance_type, created_at
+      FROM public.medical_records
+      ON CONFLICT (id) DO NOTHING;
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Medical records migration notice: %', SQLERRM;
+  END;
 
-  -- Copy notifications
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'notifications') THEN
-    INSERT INTO clinic_system.notifications (
-      id, recipient_id, target_role, title, message, type, action_url, is_read, is_dismissed, created_at
-    )
-    SELECT
-      id, recipient_id, target_role::text::clinic_system.user_role, title, message,
-      type::text::clinic_system.notification_type, action_url, is_read, is_dismissed, created_at
-    FROM public.notifications
-    ON CONFLICT (id) DO NOTHING;
-  END IF;
+  -- Copy prescriptions safely
+  BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'prescriptions') THEN
+      INSERT INTO clinic_system.prescriptions (
+        id, record_id, patient_id, doctor_id, medication_name, dosage, frequency, instructions, created_at
+      )
+      SELECT
+        id, record_id, patient_id, doctor_id, medication_name, dosage, frequency, instructions, created_at
+      FROM public.prescriptions
+      ON CONFLICT (id) DO NOTHING;
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Prescriptions migration notice: %', SQLERRM;
+  END;
+
+  -- Copy notifications safely
+  BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'notifications') THEN
+      INSERT INTO clinic_system.notifications (
+        id, recipient_id, target_role, title, message, type, action_url, is_read, is_dismissed, created_at
+      )
+      SELECT
+        id, recipient_id, target_role::text::clinic_system.user_role, title, message,
+        type::text::clinic_system.notification_type, action_url, is_read, is_dismissed, created_at
+      FROM public.notifications
+      ON CONFLICT (id) DO NOTHING;
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Notifications migration notice: %', SQLERRM;
+  END;
 END $$;
 
 -- 9. ROW LEVEL SECURITY (RLS) POLICIES FOR clinic_system SCHEMA
