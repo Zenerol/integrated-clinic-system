@@ -87,19 +87,30 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
       const day = String(date.getDate()).padStart(2, '0');
       const datePrefix = `${year}-${month}-${day}`;
 
+      // Helper to format a 30-minute continuous slot range string (e.g. "08:00 AM – 08:30 AM")
+      const formatSlotRange = (dateObj: Date): string => {
+        const startHoursRaw = dateObj.getHours();
+        const startMins = dateObj.getMinutes();
+        const startAmpm = startHoursRaw >= 12 ? 'PM' : 'AM';
+        let startHours = startHoursRaw % 12;
+        startHours = startHours ? startHours : 12;
+        const startStr = `${String(startHours).padStart(2, '0')}:${String(startMins).padStart(2, '0')} ${startAmpm}`;
+
+        const endDateObj = new Date(dateObj.getTime() + 30 * 60 * 1000);
+        const endHoursRaw = endDateObj.getHours();
+        const endMins = endDateObj.getMinutes();
+        const endAmpm = endHoursRaw >= 12 ? 'PM' : 'AM';
+        let endHours = endHoursRaw % 12;
+        endHours = endHours ? endHours : 12;
+        const endStr = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')} ${endAmpm}`;
+
+        return `${startStr} – ${endStr}`;
+      };
+
       const booked = allApts
         .filter((a) => a.status !== 'cancelled' && a.status !== 'rejected')
         .filter((a) => a.scheduled_at.startsWith(datePrefix))
-        .map((a) => {
-          const d = new Date(a.scheduled_at);
-          let hours = d.getHours();
-          const minutes = String(d.getMinutes()).padStart(2, '0');
-          const ampm = hours >= 12 ? 'PM' : 'AM';
-          hours = hours % 12;
-          hours = hours ? hours : 12;
-          const strHours = String(hours).padStart(2, '0');
-          return `${strHours}:${minutes} ${ampm}`;
-        });
+        .map((a) => formatSlotRange(new Date(a.scheduled_at)));
 
       setBookedSlots(booked);
     } catch (err) {
@@ -145,8 +156,9 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
     setLoading(true);
 
     try {
-      // Parse time string e.g. "09:00 AM" or "02:00 PM"
-      const [timePart, ampm] = selectedTime.split(' ');
+      // Parse start time from 30-min range string e.g. "08:00 AM – 08:30 AM" or "08:00 AM - 08:30 AM"
+      const startTimePart = selectedTime.split(/ – | - /)[0].trim();
+      const [timePart, ampm] = startTimePart.split(' ');
       let [hours, minutes] = timePart.split(':').map(Number);
       if (ampm === 'PM' && hours < 12) hours += 12;
       if (ampm === 'AM' && hours === 12) hours = 0;

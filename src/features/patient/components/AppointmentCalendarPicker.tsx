@@ -11,22 +11,22 @@ interface AppointmentCalendarPickerProps {
 }
 
 const AVAILABLE_TIME_SLOTS = [
-  '08:00 AM',
-  '08:30 AM',
-  '09:00 AM',
-  '09:30 AM',
-  '10:00 AM',
-  '10:30 AM',
-  '11:00 AM',
-  '11:30 AM',
-  '01:00 PM',
-  '01:30 PM',
-  '02:00 PM',
-  '02:30 PM',
-  '03:00 PM',
-  '03:30 PM',
-  '04:00 PM',
-  '04:30 PM',
+  '08:00 AM – 08:30 AM',
+  '08:30 AM – 09:00 AM',
+  '09:00 AM – 09:30 AM',
+  '09:30 AM – 10:00 AM',
+  '10:00 AM – 10:30 AM',
+  '10:30 AM – 11:00 AM',
+  '11:00 AM – 11:30 AM',
+  '11:30 AM – 12:00 PM',
+  '01:00 PM – 01:30 PM',
+  '01:30 PM – 02:00 PM',
+  '02:00 PM – 02:30 PM',
+  '02:30 PM – 03:00 PM',
+  '03:00 PM – 03:30 PM',
+  '03:30 PM – 04:00 PM',
+  '04:00 PM – 04:30 PM',
+  '04:30 PM – 05:00 PM',
 ];
 
 export const AppointmentCalendarPicker: React.FC<AppointmentCalendarPickerProps> = ({
@@ -82,7 +82,7 @@ export const AppointmentCalendarPicker: React.FC<AppointmentCalendarPickerProps>
           <span>Doctor Schedule: <strong>Mon - Fri (8:00 AM - 5:00 PM)</strong></span>
         </div>
         <span className="text-[11px] bg-teal-100 dark:bg-teal-900/60 px-2 py-0.5 rounded-md font-bold text-teal-800 dark:text-teal-200">
-          Weekends Closed
+          30-Min Sessions
         </span>
       </div>
 
@@ -186,9 +186,10 @@ export const AppointmentCalendarPicker: React.FC<AppointmentCalendarPickerProps>
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-56 overflow-y-auto p-1 pr-1.5 custom-scrollbar">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-60 overflow-y-auto p-1 pr-1.5 custom-scrollbar">
             {AVAILABLE_TIME_SLOTS.map((slot) => {
-              const isBooked = bookedSlots.includes(slot);
+              const normalizedSlot = slot.replace(/ – | - /g, ' - ');
+              const isBooked = bookedSlots.some(b => b.replace(/ – | - /g, ' - ') === normalizedSlot || b.startsWith(slot.split(/ – | - /)[0]));
               const isSelected = selectedTime === slot;
 
               return (
@@ -199,26 +200,26 @@ export const AppointmentCalendarPicker: React.FC<AppointmentCalendarPickerProps>
                   onClick={() => {
                     if (!isBooked) onSelectTime(slot);
                   }}
-                  className={`p-2.5 rounded-lg text-xs transition-all flex flex-col items-center justify-center gap-1 ${
+                  className={`p-3 rounded-xl text-xs transition-all flex items-center justify-between gap-2 ${
                     isBooked
-                      ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed font-medium bg-slate-100/50 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-800 line-through'
+                      ? 'text-slate-400 dark:text-slate-600 cursor-not-allowed font-medium bg-slate-100/60 dark:bg-slate-800/30 border border-slate-200/80 dark:border-slate-800 line-through'
                       : isSelected
-                      ? 'bg-teal-600 text-white font-bold border-teal-600 shadow-sm ring-2 ring-teal-600/30'
-                      : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-semibold border border-slate-200/90 dark:border-slate-700 rounded-lg shadow-xs hover:border-teal-500 hover:bg-teal-50/50 transition-all cursor-pointer'
+                      ? 'bg-teal-600 text-white font-extrabold border-teal-600 shadow-md ring-2 ring-teal-600/30'
+                      : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold border border-slate-200 dark:border-slate-700/80 rounded-xl shadow-xs hover:border-teal-500 hover:bg-teal-50/50 transition-all cursor-pointer'
                   }`}
                 >
-                  <span className="font-extrabold">{slot}</span>
-                  <span className="text-[10px] font-bold">
+                  <span className="font-extrabold tracking-tight whitespace-nowrap text-xs">{slot}</span>
+                  <span className="text-[10px] font-extrabold shrink-0">
                     {isBooked ? (
                       <span className="text-rose-600 dark:text-rose-400 flex items-center gap-0.5">
-                        <Ban className="w-3 h-3 inline" /> Booked
+                        <Ban className="w-3.5 h-3.5 inline" /> Booked
                       </span>
                     ) : isSelected ? (
                       <span className="text-teal-100 flex items-center gap-0.5">
-                        <CheckCircle className="w-3 h-3 inline" /> Selected
+                        <CheckCircle className="w-3.5 h-3.5 inline" /> Selected
                       </span>
                     ) : (
-                      <span className="text-emerald-700 dark:text-emerald-400 font-bold">
+                      <span className="text-emerald-700 dark:text-emerald-400 font-black uppercase text-[10px]">
                         Available
                       </span>
                     )}
