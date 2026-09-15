@@ -6,6 +6,8 @@ import { NotificationRow } from '../types/clinic.types';
 interface NotificationContextType {
   notifications: NotificationRow[];
   activeAlert: NotificationRow | null;
+  urgentNotification: NotificationRow | null;
+  announcementNotification: NotificationRow | null;
   unreadCount: number;
   dismissNotification: (id: string) => Promise<void>;
   markAsRead: (id: string) => Promise<void>;
@@ -19,15 +21,36 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const { user, profile } = useAuth();
   const [notifications, setNotifications] = useState<NotificationRow[]>([]);
   const [activeAlert, setActiveAlert] = useState<NotificationRow | null>(null);
+  const [urgentNotification, setUrgentNotification] = useState<NotificationRow | null>(null);
+  const [announcementNotification, setAnnouncementNotification] = useState<NotificationRow | null>(null);
+
+  const processNotificationTiers = (list: NotificationRow[]) => {
+    const undismissed = list.filter((n) => !n.is_dismissed);
+    
+    // Tier 1: Urgent / Critical Toast
+    const urgent = undismissed.find(
+      (n) => n.is_critical || n.type === 'urgent' || n.title?.toLowerCase().includes('follow-up')
+    );
+    setUrgentNotification(urgent || null);
+
+    // Tier 2: Announcement Banner (broadcast announcements or system warnings)
+    const announcement = undismissed.find(
+      (n) =>
+        (n.type === 'warning' || n.type === 'info') &&
+        (!n.is_critical && !n.title?.toLowerCase().includes('follow-up')) &&
+        (n.target_role === null || n.title?.toLowerCase().includes('announcement') || n.title?.toLowerCase().includes('alert'))
+    );
+    setAnnouncementNotification(announcement || null);
+
+    // Backward compatibility active alert
+    setActiveAlert(urgent || announcement || undismissed[0] || null);
+  };
 
   const fetchNotifications = async () => {
     try {
       const list = await notificationService.getNotifications(user?.id, profile?.role);
       setNotifications(list);
-      
-      // Set top undismissed alert
-      const topAlert = list.find((n) => !n.is_dismissed);
-      setActiveAlert(topAlert || null);
+      processNotificationTiers(list);
     } catch (err) {
       console.error('Failed to load notifications:', err);
     }
@@ -43,8 +66,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const isForRole = !newNotification.target_role || newNotification.target_role === profile?.role;
 
       if (isForUser && isForRole) {
-        setNotifications((prev) => [newNotification, ...prev]);
-        setActiveAlert(newNotification);
+        setNotifications((prev) => {
+          const updated = [newNotification, ...prev];
+          processNotificationTiers(updated);
+          return updated;
+        });
       }
     });
 
@@ -56,11 +82,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const dismissNotification = async (id: string) => {
     try {
       await notificationService.dismissNotification(id);
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
-      if (activeAlert?.id === id) {
-        const remaining = notifications.filter((n) => n.id !== id && !n.is_dismissed);
-        setActiveAlert(remaining[0] || null);
-      }
+      setNotifications((prev) => {
+        const remaining = prev.filter((n) => n.id !== id);
+        processNotificationTiers(remaining);
+        return remaining;
+      });
     } catch (err) {
       console.error('Failed to dismiss notification:', err);
     }
@@ -94,6 +120,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       value={{
         notifications,
         activeAlert,
+        urgentNotification,
+        announcementNotification,
         unreadCount,
         dismissNotification,
         markAsRead,

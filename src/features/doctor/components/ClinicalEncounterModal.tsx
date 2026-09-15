@@ -8,7 +8,7 @@ import { ClearanceType } from '../../../types/database.types';
 import { PrescriptionBuilder, PrescriptionItemInput } from './PrescriptionBuilder';
 import { clinicalEncounterSchema } from '../../../utils/validationSchemas';
 import { sanitizeInput } from '../../../utils/security';
-import { Stethoscope, CheckCircle2, FileText, Activity, Heart, Thermometer, Weight, AlertCircle } from 'lucide-react';
+import { Stethoscope, CheckCircle2, FileText, Activity, Heart, Thermometer, Weight, AlertCircle, CalendarCheck } from 'lucide-react';
 
 interface ClinicalEncounterModalProps {
   isOpen: boolean;
@@ -33,6 +33,9 @@ export const ClinicalEncounterModal: React.FC<ClinicalEncounterModalProps> = ({
   const [treatmentPlan, setTreatmentPlan] = useState('');
   const [doctorNotes, setDoctorNotes] = useState('');
   const [clearanceType, setClearanceType] = useState<ClearanceType>('fit_to_study');
+  const [requiresFollowUp, setRequiresFollowUp] = useState(false);
+  const [followUpDate, setFollowUpDate] = useState('');
+  const [followUpInstructions, setFollowUpInstructions] = useState('');
   const [prescriptions, setPrescriptions] = useState<PrescriptionItemInput[]>([]);
 
   const [loading, setLoading] = useState(false);
@@ -70,6 +73,9 @@ export const ClinicalEncounterModal: React.FC<ClinicalEncounterModalProps> = ({
         treatment_plan: sanitizeInput(treatmentPlan),
         doctor_notes: sanitizeInput(doctorNotes),
         clearance_type: clearanceType,
+        requires_follow_up: requiresFollowUp,
+        follow_up_date: requiresFollowUp ? followUpDate : null,
+        follow_up_instructions: requiresFollowUp ? sanitizeInput(followUpInstructions) : undefined,
         prescriptions: prescriptions.map((p) => ({
           medication_name: sanitizeInput(p.medication_name),
           dosage: sanitizeInput(p.dosage),
@@ -171,7 +177,7 @@ export const ClinicalEncounterModal: React.FC<ClinicalEncounterModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                 Treatment Advice for Patient
               </label>
               <textarea
@@ -179,12 +185,12 @@ export const ClinicalEncounterModal: React.FC<ClinicalEncounterModalProps> = ({
                 value={treatmentPlan}
                 onChange={(e) => setTreatmentPlan(e.target.value)}
                 placeholder="Drink plenty of water, rest for 2 days, return if fever persists..."
-                className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-slate-900 dark:text-slate-100 text-sm rounded-xl p-3 outline-none transition font-medium"
+                className="w-full bg-slate-50/60 hover:bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/80 focus:border-teal-600 dark:focus:border-teal-400 focus:ring-2 focus:ring-teal-600/15 text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-medium rounded-xl p-3 outline-none transition"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                 Doctor Private Notes
               </label>
               <textarea
@@ -192,7 +198,7 @@ export const ClinicalEncounterModal: React.FC<ClinicalEncounterModalProps> = ({
                 value={doctorNotes}
                 onChange={(e) => setDoctorNotes(e.target.value)}
                 placeholder="Internal clinic remarks..."
-                className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-slate-900 dark:text-slate-100 text-sm rounded-xl p-3 outline-none transition font-medium"
+                className="w-full bg-slate-50/60 hover:bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/80 focus:border-teal-600 dark:focus:border-teal-400 focus:ring-2 focus:ring-teal-600/15 text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-medium rounded-xl p-3 outline-none transition"
               />
             </div>
           </div>
@@ -209,6 +215,91 @@ export const ClinicalEncounterModal: React.FC<ClinicalEncounterModalProps> = ({
               { value: 'none', label: 'No Certificate Needed' },
             ]}
           />
+
+          {/* Follow-Up Consultation Control */}
+          <div className="p-4 bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/60 rounded-xl space-y-3">
+            <label className="flex items-center gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={requiresFollowUp}
+                onChange={(e) => {
+                  setRequiresFollowUp(e.target.checked);
+                  if (e.target.checked && !followUpDate) {
+                    const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    setFollowUpDate(nextWeek);
+                  }
+                }}
+                className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
+              />
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5">
+                <CalendarCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                Schedule Follow-Up Visit Recommendation
+              </span>
+            </label>
+
+            {requiresFollowUp && (
+              <div className="pt-2 border-t border-indigo-200/60 dark:border-indigo-800/40 space-y-3 animate-in fade-in duration-150">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Recommended Date & Quick Presets
+                  </label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Input
+                      type="date"
+                      value={followUpDate}
+                      onChange={(e) => setFollowUpDate(e.target.value)}
+                      className="!w-44"
+                    />
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const date = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                          setFollowUpDate(date);
+                        }}
+                        className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/50 dark:text-indigo-300 dark:hover:bg-indigo-900 transition cursor-pointer border border-indigo-200 dark:border-indigo-700/50"
+                      >
+                        +3 Days
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                          setFollowUpDate(date);
+                        }}
+                        className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/50 dark:text-indigo-300 dark:hover:bg-indigo-900 transition cursor-pointer border border-indigo-200 dark:border-indigo-700/50"
+                      >
+                        +1 Week
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const date = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                          setFollowUpDate(date);
+                        }}
+                        className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/50 dark:text-indigo-300 dark:hover:bg-indigo-900 transition cursor-pointer border border-indigo-200 dark:border-indigo-700/50"
+                      >
+                        +2 Weeks
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Follow-Up Clinical Objective & Instructions
+                  </label>
+                  <input
+                    type="text"
+                    value={followUpInstructions}
+                    onChange={(e) => setFollowUpInstructions(e.target.value)}
+                    placeholder="e.g. Re-check blood pressure and adjust medication dosage"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 text-slate-900 dark:text-slate-100 text-xs rounded-lg p-2.5 outline-none transition font-medium"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Electronic Prescription Builder */}

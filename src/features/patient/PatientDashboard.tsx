@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { appointmentService } from '../../services/appointmentService';
@@ -10,15 +11,16 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Tabs } from '../../components/ui/Tabs';
-import { BookAppointmentModal } from './components/BookAppointmentModal';
+import { BookAppointmentModal, FollowUpPrefillData } from './components/BookAppointmentModal';
 import { PatientAppointmentsList } from './components/PatientAppointmentsList';
 import { PatientHistoryList } from './components/PatientHistoryList';
 import { MedicalDocumentModal } from '../doctor/components/MedicalDocumentModal';
-import { User, Plus, Calendar, Pill, RefreshCw } from 'lucide-react';
+import { User, Plus, Calendar, Pill, RefreshCw, CalendarCheck } from 'lucide-react';
 
 export const PatientDashboard: React.FC = () => {
   const { profile } = useAuth();
   const { showToast } = useToast();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<string>('active');
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -27,6 +29,7 @@ export const PatientDashboard: React.FC = () => {
 
   // Modals
   const [isBookModalOpen, setIsBookModalOpen] = useState<boolean>(false);
+  const [followUpModalData, setFollowUpModalData] = useState<FollowUpPrefillData | null>(null);
   const [docPreviewRecord, setDocPreviewRecord] = useState<MedicalRecordWithDetails | null>(null);
   const [docPreviewApt, setDocPreviewApt] = useState<AppointmentWithPatient | null>(null);
 
@@ -52,6 +55,29 @@ export const PatientDashboard: React.FC = () => {
     fetchPatientData();
   }, [profile?.id]);
 
+  // Handle URL query parameters (e.g. from Urgent Toast "Book Now")
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('follow_up') === 'true') {
+      const parentId = searchParams.get('parent_id') || '';
+      const date = searchParams.get('date') || '';
+      const doctorId = searchParams.get('doctor_id') || '';
+      if (parentId) {
+        setFollowUpModalData({
+          parent_appointment_id: parentId,
+          assigned_doctor_id: doctorId || undefined,
+          default_date: date || undefined,
+          reason: 'Doctor Recommended Follow-Up',
+        });
+        setIsBookModalOpen(true);
+      }
+    }
+  }, [location.search]);
+
+  const recommendedFollowUpRecord = historyRecords.find(
+    (r) => r.requires_follow_up && !appointments.some((a) => a.parent_appointment_id === r.appointment_id)
+  );
+
   const handleBookAppointment = async (payload: CreateAppointmentPayload) => {
     if (!profile) return;
     await appointmentService.createAppointment(profile.id, payload);
@@ -59,12 +85,13 @@ export const PatientDashboard: React.FC = () => {
     // Send broadcast notification to Nurse role
     await notificationService.sendNotification({
       target_role: 'nurse',
-      title: 'New Consultation Request',
-      message: `${profile.full_name} (${profile.patient_type?.replace('_', ' ')}) has submitted a new appointment booking.`,
+      title: payload.is_follow_up ? 'Follow-Up Visit Booked' : 'New Consultation Request',
+      message: `${profile.full_name} (${profile.patient_type?.replace('_', ' ')}) has booked a ${payload.is_follow_up ? 'Follow-Up' : 'new'} consultation visit.`,
       type: 'info',
     });
 
     showToast('Appointment request booked successfully!', 'success', 'Booked');
+    setFollowUpModalData(null);
     await fetchPatientData();
   };
 
@@ -116,13 +143,57 @@ export const PatientDashboard: React.FC = () => {
           <Button
             variant="primary"
             size="sm"
-            onClick={() => setIsBookModalOpen(true)}
+            onClick={() => {
+              setFollowUpModalData(null);
+              setIsBookModalOpen(true);
+            }}
             icon={<Plus className="w-4 h-4" />}
           >
             Book Appointment
           </Button>
         </div>
       </div>
+
+      {/* Prominent Follow-Up Action Banner */}
+      {recommendedFollowUpRecord && (
+        <div className="bg-gradient-to-r from-indigo-900 via-indigo-950 to-slate-900 text-white p-4 sm:p-5 rounded-2xl shadow-xl border border-indigo-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in duration-200">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0 border border-indigo-400/30 mt-0.5">
+              <CalendarCheck className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-indigo-500/30 text-indigo-200 px-2 py-0.5 rounded border border-indigo-400/30">
+                  Follow-Up Action Required
+                </span>
+                <h3 className="text-sm font-bold text-white">
+                  Clinical Follow-Up Consultation Advised
+                </h3>
+              </div>
+              <p className="text-xs text-indigo-100 font-medium leading-relaxed">
+                {recommendedFollowUpRecord.follow_up_instructions || 'Your attending physician recommended a check-up consultation.'}
+                {recommendedFollowUpRecord.follow_up_date && ` (Target Date: ${recommendedFollowUpRecord.follow_up_date})`}
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              setFollowUpModalData({
+                parent_appointment_id: recommendedFollowUpRecord.appointment_id || '',
+                default_date: recommendedFollowUpRecord.follow_up_date,
+                reason: recommendedFollowUpRecord.follow_up_instructions,
+              });
+              setIsBookModalOpen(true);
+            }}
+            icon={<CalendarCheck className="w-4 h-4" />}
+            className="!bg-indigo-600 hover:!bg-indigo-500 text-white shrink-0 shadow-lg border border-indigo-400/30"
+          >
+            Confirm Follow-Up Appointment
+          </Button>
+        </div>
+      )}
 
       {/* Overview Stat Cards for Patient */}
       <div className="grid grid-cols-1 sm:grid-cols-2 max-w-3xl gap-4">
@@ -197,6 +268,7 @@ export const PatientDashboard: React.FC = () => {
       <BookAppointmentModal
         isOpen={isBookModalOpen}
         isExternalPatient={profile?.patient_type === 'external_client'}
+        followUpData={followUpModalData}
         onClose={() => setIsBookModalOpen(false)}
         onBookAppointment={handleBookAppointment}
       />

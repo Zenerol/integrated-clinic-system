@@ -4,7 +4,8 @@ import { useToast } from '../../context/ToastContext';
 import { appointmentService } from '../../services/appointmentService';
 import { medicalRecordService } from '../../services/medicalRecordService';
 import { notificationService } from '../../services/notificationService';
-import { AppointmentWithPatient, VitalsFormPayload } from '../../types/clinic.types';
+import { institutionService } from '../../services/institutionService';
+import { AppointmentWithPatient, InstitutionRow, VitalsFormPayload } from '../../types/clinic.types';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Tabs } from '../../components/ui/Tabs';
@@ -12,7 +13,7 @@ import { PendingRequestsList } from './components/PendingRequestsList';
 import { ActiveQueueList } from './components/ActiveQueueList';
 import { RejectModal } from './components/RejectModal';
 import { VitalsIntakeModal } from './components/VitalsIntakeModal';
-import { HeartPulse, ClipboardCheck, Clock, Users, RefreshCw } from 'lucide-react';
+import { HeartPulse, ClipboardCheck, Clock, Users, RefreshCw, Filter, Building2, UserCheck } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 
 export const NurseDashboard: React.FC = () => {
@@ -20,6 +21,9 @@ export const NurseDashboard: React.FC = () => {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<string>('pending');
   const [loading, setLoading] = useState<boolean>(true);
+
+  const [institutions, setInstitutions] = useState<InstitutionRow[]>([]);
+  const [selectedInstitutionFilter, setSelectedInstitutionFilter] = useState<string>('ALL');
 
   const [pendingAppointments, setPendingAppointments] = useState<AppointmentWithPatient[]>([]);
   const [activeQueue, setActiveQueue] = useState<AppointmentWithPatient[]>([]);
@@ -31,6 +35,9 @@ export const NurseDashboard: React.FC = () => {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
+      const insts = await institutionService.getPartnerInstitutions();
+      setInstitutions(insts);
+
       // Fetch Pending
       const pending = await appointmentService.getAppointments({ status: 'pending' });
       setPendingAppointments(pending);
@@ -50,6 +57,22 @@ export const NurseDashboard: React.FC = () => {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  const filterByInstitution = (list: AppointmentWithPatient[]) => {
+    if (selectedInstitutionFilter === 'ALL') return list;
+    if (selectedInstitutionFilter === 'EXTERNAL') {
+      return list.filter((a) => a.patient?.patient_type === 'external_client' || !a.patient?.institution_id);
+    }
+    return list.filter(
+      (a) =>
+        a.patient?.institution_id === selectedInstitutionFilter ||
+        a.patient?.institution?.code === selectedInstitutionFilter ||
+        a.institution_id === selectedInstitutionFilter
+    );
+  };
+
+  const filteredPending = filterByInstitution(pendingAppointments);
+  const filteredActive = filterByInstitution(activeQueue);
 
   const handleApprove = async (appointment: AppointmentWithPatient) => {
     if (!profile) return;
@@ -102,27 +125,28 @@ export const NurseDashboard: React.FC = () => {
     patientId: string,
     vitals: VitalsFormPayload
   ) => {
-    // 1. Save Vitals record
+    // 1. Save vitals
     await medicalRecordService.saveVitals(appointmentId, patientId, vitals);
 
-    // 2. Transition status to with_doctor
-    await appointmentService.passToDoctor(appointmentId);
+    // 2. Advance appointment status to 'with_doctor'
+    await appointmentService.moveToDoctor(appointmentId);
 
-    // 3. Dispatch urgent notification to Doctor role
+    // 3. Notify Doctor Role
     await notificationService.sendNotification({
       target_role: 'doctor',
-      title: 'Patient Ready for Doctor Assessment',
-      message: `Vitals recorded for ${selectedVitalsAppointment?.patient.full_name}. Patient is ready in consulting queue.`,
-      type: 'urgent',
+      title: 'Patient Vitals Triaged',
+      message: `Nurse has recorded vitals for patient. Ready for consultation.`,
+      type: 'info',
     });
 
-    showToast('Nurse health check recorded & sent to Doctor!', 'success', 'Vitals Saved');
+    showToast('Vitals saved successfully! Patient moved to Doctor Desk.', 'success', 'Vitals Recorded');
+    setSelectedVitalsAppointment(null);
     await fetchDashboardData();
   };
 
   const tabs = [
-    { id: 'pending', label: 'Appointment Requests', count: pendingAppointments.length, icon: <Clock className="w-4 h-4" /> },
-    { id: 'triage', label: 'Active Clinic Queue', count: activeQueue.length, icon: <HeartPulse className="w-4 h-4" /> },
+    { id: 'pending', label: 'Appointment Requests', count: filteredPending.length, icon: <Clock className="w-4 h-4" /> },
+    { id: 'triage', label: 'Active Clinic Queue', count: filteredActive.length, icon: <HeartPulse className="w-4 h-4" /> },
   ];
 
   return (
@@ -164,7 +188,7 @@ export const NurseDashboard: React.FC = () => {
             </p>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-                {pendingAppointments.length}
+                {filteredPending.length}
               </span>
               <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-500/30">
                 Action Required
@@ -188,7 +212,7 @@ export const NurseDashboard: React.FC = () => {
             </p>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-                {activeQueue.length}
+                {filteredActive.length}
               </span>
               <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/15 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-500/30">
                 In Queue
@@ -205,20 +229,68 @@ export const NurseDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Horizontal Multi-Tenant Institution Filter Chips */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 select-none">
+        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1 shrink-0 mr-1">
+          <Filter className="w-3.5 h-3.5 text-teal-600" /> Filter:
+        </span>
+
+        <button
+          type="button"
+          onClick={() => setSelectedInstitutionFilter('ALL')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 border ${
+            selectedInstitutionFilter === 'ALL'
+              ? 'bg-teal-700 text-white border-teal-800 shadow-xs'
+              : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50'
+          }`}
+        >
+          All Requests ({pendingAppointments.length + activeQueue.length})
+        </button>
+
+        {institutions.map((inst) => (
+          <button
+            key={inst.id}
+            type="button"
+            onClick={() => setSelectedInstitutionFilter(inst.id)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 border flex items-center gap-1.5 ${
+              selectedInstitutionFilter === inst.id
+                ? 'bg-teal-700 text-white border-teal-800 shadow-xs'
+                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5" />
+            <span>{inst.code}</span>
+          </button>
+        ))}
+
+        <button
+          type="button"
+          onClick={() => setSelectedInstitutionFilter('EXTERNAL')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 border flex items-center gap-1.5 ${
+            selectedInstitutionFilter === 'EXTERNAL'
+              ? 'bg-amber-600 text-white border-amber-700 shadow-xs'
+              : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50'
+          }`}
+        >
+          <UserCheck className="w-3.5 h-3.5" />
+          <span>Community Outpatients</span>
+        </button>
+      </div>
+
       {/* Main Tabs & List Content */}
       <Card>
         <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
         <div className="mt-6">
           {activeTab === 'pending' ? (
             <PendingRequestsList
-              appointments={pendingAppointments}
+              appointments={filteredPending}
               loading={loading}
               onApprove={handleApprove}
               onReject={(apt) => setSelectedRejectAppointment(apt)}
             />
           ) : (
             <ActiveQueueList
-              appointments={activeQueue}
+              appointments={filteredActive}
               loading={loading}
               onCheckInAndRecordVitals={handleCheckInAndOpenVitals}
             />

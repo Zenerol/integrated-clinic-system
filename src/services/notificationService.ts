@@ -53,31 +53,47 @@ export const notificationService = {
     title: string;
     message: string;
     type?: NotificationType;
+    is_critical?: boolean;
     action_url?: string | null;
   }) {
+    const isCritical = payload.is_critical ?? (payload.type === 'urgent');
+
+    const insertPayload: Record<string, unknown> = {
+      recipient_id: payload.recipient_id || null,
+      target_role: payload.target_role || null,
+      title: payload.title,
+      message: payload.message,
+      type: payload.type || 'info',
+      action_url: payload.action_url || null,
+      is_critical: isCritical,
+    };
+
     const { data, error } = await supabase
       .from('notifications')
-      .insert({
-        recipient_id: payload.recipient_id || null,
-        target_role: payload.target_role || null,
-        title: payload.title,
-        message: payload.message,
-        type: payload.type || 'info',
-        action_url: payload.action_url || null,
-      })
+      .insert(insertPayload as any)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Fallback if is_critical column is missing on DB
+      delete insertPayload.is_critical;
+      const { data: retryData, error: retryError } = await supabase
+        .from('notifications')
+        .insert(insertPayload as any)
+        .select()
+        .single();
+      if (retryError) throw retryError;
+      return retryData;
+    }
     return data;
   },
 
   subscribeToNotifications(onNotificationReceived: (notification: NotificationRow) => void) {
     return supabase
-      .channel('public:notifications')
+      .channel('clinic_notifications_realtime')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications' },
+        { event: 'INSERT', table: 'notifications' },
         (payload) => {
           onNotificationReceived(payload.new as NotificationRow);
         }

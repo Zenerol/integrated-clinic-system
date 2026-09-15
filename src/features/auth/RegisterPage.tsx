@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
 import { PatientCategory } from '../../types/database.types';
+import { InstitutionRow } from '../../types/clinic.types';
+import { DEFAULT_PARTNER_INSTITUTIONS, institutionService } from '../../services/institutionService';
 import { getPasswordStrength, passwordSchema } from '../../utils/validationSchemas';
 import { sanitizeInput } from '../../utils/security';
-import { Mail, Lock, User, IdCard, Building2, Phone, MapPin, UserPlus, AlertCircle, CheckCircle2, GraduationCap, UserCheck, Stethoscope } from 'lucide-react';
+import { Mail, Lock, User, IdCard, Building2, Phone, MapPin, UserPlus, AlertCircle, GraduationCap, UserCheck, Stethoscope } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
   const { signUp } = useAuth();
@@ -15,6 +17,9 @@ export const RegisterPage: React.FC = () => {
 
   const [categoryMode, setCategoryMode] = useState<'campus' | 'external'>('campus');
   const [patientType, setPatientType] = useState<PatientCategory>('student');
+
+  const [institutions, setInstitutions] = useState<InstitutionRow[]>(DEFAULT_PARTNER_INSTITUTIONS);
+  const [selectedInstitutionId, setSelectedInstitutionId] = useState<string>(DEFAULT_PARTNER_INSTITUTIONS[0]?.id || '');
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -27,14 +32,27 @@ export const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    institutionService.getPartnerInstitutions().then((list) => {
+      if (list && list.length > 0) {
+        setInstitutions(list);
+        setSelectedInstitutionId((prev) => prev || list[0].id);
+      }
+    });
+  }, []);
+
   const passwordStrength = getPasswordStrength(password);
 
   const handleModeToggle = (mode: 'campus' | 'external') => {
     setCategoryMode(mode);
     if (mode === 'campus') {
       setPatientType('student');
+      if (institutions.length > 0 && !selectedInstitutionId) {
+        setSelectedInstitutionId(institutions[0].id);
+      }
     } else {
       setPatientType('external_client');
+      setSelectedInstitutionId('');
     }
   };
 
@@ -55,14 +73,20 @@ export const RegisterPage: React.FC = () => {
       return;
     }
 
+    if (categoryMode === 'external' && !address.trim()) {
+      setErrorMessage('Residential Address is required for Community Outpatient registration.');
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await signUp({
       email: email.trim().toLowerCase(),
       password,
       fullName: sanitizeInput(fullName),
-      role: 'client',
+      role: 'client', // Strictly hardcoded to 'client' for security
       patientType: categoryMode === 'campus' ? patientType : 'external_client',
+      institutionId: categoryMode === 'campus' ? selectedInstitutionId : undefined,
       schoolIdNumber: categoryMode === 'campus' ? sanitizeInput(schoolIdNumber) : undefined,
       departmentOrCourse: categoryMode === 'campus' ? sanitizeInput(departmentOrCourse) : undefined,
       contactNumber: sanitizeInput(contactNumber),
@@ -205,6 +229,16 @@ export const RegisterPage: React.FC = () => {
           {categoryMode === 'campus' ? (
             <>
               <Select
+                label="Partner Institution"
+                value={selectedInstitutionId}
+                onChange={(e) => setSelectedInstitutionId(e.target.value)}
+                required
+                options={institutions.map((inst) => ({
+                  value: inst.id,
+                  label: `${inst.name} (${inst.code})`,
+                }))}
+              />
+              <Select
                 label="Campus Role"
                 value={patientType}
                 onChange={(e) => setPatientType(e.target.value as PatientCategory)}
@@ -225,6 +259,7 @@ export const RegisterPage: React.FC = () => {
               <Input
                 label="Department / Course"
                 type="text"
+                required
                 placeholder="e.g. BS Information Technology"
                 leftIcon={<Building2 className="w-4 h-4" />}
                 value={departmentOrCourse}

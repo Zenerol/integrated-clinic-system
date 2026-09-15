@@ -17,6 +17,7 @@ export interface RegisterPayload {
   fullName: string;
   role: UserRole;
   patientType?: PatientCategory;
+  institutionId?: string;
   schoolIdNumber?: string;
   departmentOrCourse?: string;
   contactNumber?: string;

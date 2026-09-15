@@ -35,6 +35,7 @@ export const authService = {
         full_name: payload.fullName,
         role: payload.role,
         patient_type: payload.patientType || null,
+        institution_id: payload.institutionId || null,
         school_id_number: payload.schoolIdNumber || null,
         department_or_course: payload.departmentOrCourse || null,
         contact_number: payload.contactNumber || null,

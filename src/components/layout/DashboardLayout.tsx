@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { NotificationBanner } from '../common/NotificationBanner';
+import { UrgentToastCard } from '../common/UrgentToastCard';
 import { Navbar } from '../common/Navbar';
 import { Sidebar } from '../common/Sidebar';
 import { Footer } from '../common/Footer';
@@ -10,7 +11,7 @@ export const DashboardLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
-      {/* Dynamic Top-Bar Notification Banner */}
+      {/* Dynamic Top-Bar Notification Banner (Tier 2) */}
       <NotificationBanner />
 
       {/* Role-aware Sidebar Navigation (Fixed Left Desktop + Mobile Drawer) */}
@@ -29,6 +30,9 @@ export const DashboardLayout: React.FC = () => {
         {/* Footer */}
         <Footer />
       </div>
+
+      {/* Fixed Bottom-Right Urgent Action Banner (Tier 1) */}
+      <UrgentToastCard />
     </div>
   );
 };

@@ -7,11 +7,19 @@ import { appointmentService } from '../../../services/appointmentService';
 import { AppointmentCalendarPicker } from './AppointmentCalendarPicker';
 import { bookAppointmentSchema } from '../../../utils/validationSchemas';
 import { sanitizeInput } from '../../../utils/security';
-import { CheckCircle2, AlertCircle, Calendar as CalendarIcon } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Calendar as CalendarIcon, CalendarCheck } from 'lucide-react';
+
+export interface FollowUpPrefillData {
+  parent_appointment_id: string;
+  assigned_doctor_id?: string | null;
+  default_date?: string | null;
+  reason?: string | null;
+}
 
 interface BookAppointmentModalProps {
   isOpen: boolean;
   isExternalPatient: boolean;
+  followUpData?: FollowUpPrefillData | null;
   onClose: () => void;
   onBookAppointment: (payload: CreateAppointmentPayload) => Promise<void>;
 }
@@ -19,6 +27,7 @@ interface BookAppointmentModalProps {
 export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
   isOpen,
   isExternalPatient,
+  followUpData,
   onClose,
   onBookAppointment,
 }) => {
@@ -40,14 +49,30 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
-      setChiefComplaint('');
-      setSelectedDate(null);
+      if (followUpData) {
+        setChiefComplaint(
+          followUpData.reason
+            ? `Follow-Up Consultation: ${followUpData.reason}`
+            : 'Clinical Follow-Up Visit'
+        );
+        if (followUpData.default_date) {
+          const parsed = new Date(followUpData.default_date);
+          if (!isNaN(parsed.getTime())) {
+            setSelectedDate(parsed);
+          }
+        } else {
+          setSelectedDate(null);
+        }
+      } else {
+        setChiefComplaint('');
+        setSelectedDate(null);
+      }
       setSelectedTime(null);
       setError(null);
       setBookedSlots([]);
       isSubmittingRef.current = false;
     }
-  }, [isOpen]);
+  }, [isOpen, followUpData]);
 
   // Fetch booked slots whenever selectedDate changes
   const handleSelectDate = async (date: Date) => {
@@ -134,6 +159,9 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
         scheduled_at: scheduledAtObj.toISOString(),
         consultation_mode: consultationMode,
         consultation_fee: consultationMode === 'external_private' ? 500.0 : 0.0,
+        parent_appointment_id: followUpData?.parent_appointment_id || null,
+        is_follow_up: Boolean(followUpData?.parent_appointment_id),
+        assigned_doctor_id: followUpData?.assigned_doctor_id || null,
       });
 
       onClose();
@@ -175,6 +203,18 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        {followUpData && (
+          <div className="p-3 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 rounded-xl flex items-center justify-between text-indigo-900 dark:text-indigo-200 text-xs font-bold">
+            <div className="flex items-center gap-2">
+              <CalendarCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <span>Linked Follow-Up Visit (Parent Appointment Reference Attached)</span>
+            </div>
+            <span className="px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-[10px] font-black uppercase">
+              Follow-Up
+            </span>
+          </div>
+        )}
+
         {error && (
           <div className="p-3 bg-rose-100 dark:bg-rose-500/10 border border-rose-300 dark:border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-900 dark:text-rose-300 text-xs font-bold">
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
@@ -184,8 +224,9 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
 
         {/* Chief Complaint Input */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-            Health Symptoms / Reason for Visit <span className="text-rose-600 dark:text-rose-400 font-black">*</span>
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+            <span>Health Symptoms / Reason for Visit</span>
+            <span className="text-rose-500 font-bold ml-0.5">*</span>
           </label>
           <textarea
             required

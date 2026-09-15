@@ -40,20 +40,36 @@ export const appointmentService = {
   },
 
   async createAppointment(patientId: string, payload: CreateAppointmentPayload) {
+    const insertData: Record<string, unknown> = {
+      patient_id: patientId,
+      chief_complaint: payload.chief_complaint,
+      scheduled_at: payload.scheduled_at,
+      consultation_mode: payload.consultation_mode || 'school_free',
+      consultation_fee: payload.consultation_fee || 0.00,
+      status: 'pending',
+      parent_appointment_id: payload.parent_appointment_id || null,
+      is_follow_up: Boolean(payload.is_follow_up),
+      assigned_doctor_id: payload.assigned_doctor_id || null,
+    };
+
     const { data, error } = await supabase
       .from('appointments')
-      .insert({
-        patient_id: patientId,
-        chief_complaint: payload.chief_complaint,
-        scheduled_at: payload.scheduled_at,
-        consultation_mode: payload.consultation_mode || 'school_free',
-        consultation_fee: payload.consultation_fee || 0.00,
-        status: 'pending',
-      })
+      .insert(insertData as any)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Fallback if parent_appointment_id / is_follow_up columns are not yet present on DB
+      delete insertData.parent_appointment_id;
+      delete insertData.is_follow_up;
+      const { data: retryData, error: retryError } = await supabase
+        .from('appointments')
+        .insert(insertData as any)
+        .select()
+        .single();
+      if (retryError) throw retryError;
+      return retryData;
+    }
     return data;
   },
 

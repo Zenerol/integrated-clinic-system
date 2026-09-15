@@ -67,37 +67,75 @@ export const medicalRecordService = {
 
     let recordId: string;
 
+    const followUpData = {
+      requires_follow_up: Boolean(assessment.requires_follow_up),
+      follow_up_date: assessment.follow_up_date || null,
+      follow_up_instructions: assessment.follow_up_instructions || null,
+    };
+
     if (existing) {
+      const updatePayload: Record<string, unknown> = {
+        diagnosis: assessment.diagnosis,
+        treatment_plan: assessment.treatment_plan,
+        doctor_notes: assessment.doctor_notes,
+        clearance_type: assessment.clearance_type,
+        ...followUpData,
+      };
+
       const { data, error } = await supabase
         .from('medical_records')
-        .update({
-          diagnosis: assessment.diagnosis,
-          treatment_plan: assessment.treatment_plan,
-          doctor_notes: assessment.doctor_notes,
-          clearance_type: assessment.clearance_type,
-        })
+        .update(updatePayload as any)
         .eq('id', existing.id)
         .select()
         .single();
 
-      if (error) throw error;
-      recordId = data.id;
+      if (error) {
+        // Fallback if follow_up columns are not yet on DB
+        delete updatePayload.requires_follow_up;
+        delete updatePayload.follow_up_date;
+        delete updatePayload.follow_up_instructions;
+        const { data: retryData, error: retryError } = await supabase
+          .from('medical_records')
+          .update(updatePayload as any)
+          .eq('id', existing.id)
+          .select()
+          .single();
+        if (retryError) throw retryError;
+        recordId = retryData.id;
+      } else {
+        recordId = data.id;
+      }
     } else {
+      const insertPayload: Record<string, unknown> = {
+        appointment_id: appointmentId,
+        patient_id: patientId,
+        diagnosis: assessment.diagnosis,
+        treatment_plan: assessment.treatment_plan,
+        doctor_notes: assessment.doctor_notes,
+        clearance_type: assessment.clearance_type,
+        ...followUpData,
+      };
+
       const { data, error } = await supabase
         .from('medical_records')
-        .insert({
-          appointment_id: appointmentId,
-          patient_id: patientId,
-          diagnosis: assessment.diagnosis,
-          treatment_plan: assessment.treatment_plan,
-          doctor_notes: assessment.doctor_notes,
-          clearance_type: assessment.clearance_type,
-        })
+        .insert(insertPayload as any)
         .select()
         .single();
 
-      if (error) throw error;
-      recordId = data.id;
+      if (error) {
+        delete insertPayload.requires_follow_up;
+        delete insertPayload.follow_up_date;
+        delete insertPayload.follow_up_instructions;
+        const { data: retryData, error: retryError } = await supabase
+          .from('medical_records')
+          .insert(insertPayload as any)
+          .select()
+          .single();
+        if (retryError) throw retryError;
+        recordId = retryData.id;
+      } else {
+        recordId = data.id;
+      }
     }
 
     // Save prescriptions if any
@@ -136,5 +174,23 @@ export const medicalRecordService = {
 
     if (error) throw error;
     return data as MedicalRecordWithDetails[];
+  },
+
+  async getLatestRecordForPatient(patientId: string): Promise<MedicalRecordWithDetails | null> {
+    const { data, error } = await supabase
+      .from('medical_records')
+      .select(`
+        *,
+        patient:profiles!medical_records_patient_id_fkey(*),
+        prescriptions(*),
+        appointment:appointments!medical_records_appointment_id_fkey(*)
+      `)
+      .eq('patient_id', patientId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) return null;
+    return data as MedicalRecordWithDetails | null;
   },
 };

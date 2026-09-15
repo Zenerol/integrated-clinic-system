@@ -79,6 +79,18 @@ export const DoctorDashboard: React.FC = () => {
       type: 'success',
     });
 
+    // 4. Send urgent follow-up notification if required
+    if (assessment.requires_follow_up) {
+      await notificationService.sendNotification({
+        recipient_id: patientId,
+        title: `Follow-Up Required: Dr. ${profile.full_name} recommended a check-up`,
+        message: `Dr. ${profile.full_name} recommended a follow-up consultation on ${assessment.follow_up_date || 'the near future'}. Objective: ${assessment.follow_up_instructions || 'Routine clinical re-evaluation'}.`,
+        type: 'urgent',
+        is_critical: true,
+        action_url: `/portal?follow_up=true&parent_id=${appointmentId}&doctor_id=${profile.id}&date=${assessment.follow_up_date || ''}`,
+      });
+    }
+
     showToast('Doctor checkup & medical certificate finalized!', 'success', 'Consultation Completed');
 
     // Load created record for Document Preview

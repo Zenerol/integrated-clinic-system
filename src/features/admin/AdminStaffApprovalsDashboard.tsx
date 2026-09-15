@@ -759,7 +759,7 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
             )}
 
             <Input
-              label="Full Name *"
+              label="Full Name"
               placeholder="e.g. Dr. John Doe, MD or Jane Smith"
               value={formData.full_name}
               onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
@@ -768,9 +768,10 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Select
-                label="Role *"
+                label="Role"
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
+                required
                 options={[
                   { value: 'client', label: 'Patient / Client' },
                   { value: 'doctor', label: 'Medical Doctor (MD)' },

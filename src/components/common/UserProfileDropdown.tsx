@@ -137,19 +137,33 @@ export const UserProfileDropdown: React.FC = () => {
               <Badge variant={roleInfo.badgeVariant} icon={roleInfo.icon}>
                 {roleInfo.label}
               </Badge>
+              {profile.patient_type === 'external_client' ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30">
+                  Community Outpatient
+                </span>
+              ) : profile.institution?.code ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-100 text-teal-800 dark:bg-teal-500/20 dark:text-teal-300 border border-teal-300 dark:border-teal-500/30">
+                  {profile.institution.code} Partner
+                </span>
+              ) : null}
             </div>
 
-            {(profile.department_or_course || profile.school_id_number) && (
+            {(profile.department_or_course || profile.school_id_number || profile.address) && (
               <div className="pt-2 border-t border-slate-200/80 dark:border-slate-800/80 text-[11px] text-slate-600 dark:text-slate-400 space-y-1 font-medium">
                 {profile.school_id_number && (
                   <p className="flex items-center gap-1.5">
                     <IdCard className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
-                    <span>School ID: <strong>{profile.school_id_number}</strong></span>
+                    <span>ID: <strong>{profile.school_id_number}</strong></span>
                   </p>
                 )}
                 {profile.department_or_course && (
                   <p className="truncate">
                     Dept / Course: <strong>{profile.department_or_course}</strong>
+                  </p>
+                )}
+                {profile.address && profile.patient_type === 'external_client' && (
+                  <p className="truncate">
+                    Address: <strong>{profile.address}</strong>
                   </p>
                 )}
               </div>

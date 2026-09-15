@@ -24,12 +24,39 @@ export type ClearanceType = 'fit_to_study' | 'fit_to_work' | 'standard_cert' | '
 export interface Database {
   public: {
     Tables: {
+      institutions: {
+        Row: {
+          id: string;
+          code: string;
+          name: string;
+          address: string | null;
+          has_active_contract: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          name: string;
+          address?: string | null;
+          has_active_contract?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          name?: string;
+          address?: string | null;
+          has_active_contract?: boolean;
+          created_at?: string;
+        };
+      };
       profiles: {
         Row: {
           id: string;
           full_name: string;
           role: UserRole;
           patient_type: PatientCategory | null;
+          institution_id: string | null;
           school_id_number: string | null;
           department_or_course: string | null;
           contact_number: string | null;
@@ -46,6 +73,7 @@ export interface Database {
           full_name: string;
           role?: UserRole;
           patient_type?: PatientCategory | null;
+          institution_id?: string | null;
           school_id_number?: string | null;
           department_or_course?: string | null;
           contact_number?: string | null;
@@ -62,6 +90,7 @@ export interface Database {
           full_name?: string;
           role?: UserRole;
           patient_type?: PatientCategory | null;
+          institution_id?: string | null;
           school_id_number?: string | null;
           department_or_course?: string | null;
           contact_number?: string | null;
@@ -89,6 +118,9 @@ export interface Database {
           consultation_fee: number;
           scheduled_at: string;
           created_at: string;
+          parent_appointment_id: string | null;
+          is_follow_up: boolean;
+          institution_id: string | null;
         };
         Insert: {
           id?: string;
@@ -104,6 +136,8 @@ export interface Database {
           consultation_fee?: number;
           scheduled_at?: string;
           created_at?: string;
+          parent_appointment_id?: string | null;
+          is_follow_up?: boolean;
         };
         Update: {
           id?: string;
@@ -119,6 +153,8 @@ export interface Database {
           consultation_fee?: number;
           scheduled_at?: string;
           created_at?: string;
+          parent_appointment_id?: string | null;
+          is_follow_up?: boolean;
         };
       };
       medical_records: {
@@ -136,6 +172,9 @@ export interface Database {
           doctor_notes: string | null;
           clearance_type: ClearanceType | null;
           created_at: string;
+          requires_follow_up: boolean;
+          follow_up_date: string | null;
+          follow_up_instructions: string | null;
         };
         Insert: {
           id?: string;
@@ -151,6 +190,9 @@ export interface Database {
           doctor_notes?: string | null;
           clearance_type?: ClearanceType | null;
           created_at?: string;
+          requires_follow_up?: boolean;
+          follow_up_date?: string | null;
+          follow_up_instructions?: string | null;
         };
         Update: {
           id?: string;
@@ -166,6 +208,9 @@ export interface Database {
           doctor_notes?: string | null;
           clearance_type?: ClearanceType | null;
           created_at?: string;
+          requires_follow_up?: boolean;
+          follow_up_date?: string | null;
+          follow_up_instructions?: string | null;
         };
       };
       prescriptions: {
@@ -214,6 +259,7 @@ export interface Database {
           action_url: string | null;
           is_read: boolean;
           is_dismissed: boolean;
+          is_critical: boolean;
           created_at: string;
         };
         Insert: {
@@ -226,6 +272,7 @@ export interface Database {
           action_url?: string | null;
           is_read?: boolean;
           is_dismissed?: boolean;
+          is_critical?: boolean;
           created_at?: string;
         };
         Update: {
@@ -238,6 +285,7 @@ export interface Database {
           action_url?: string | null;
           is_read?: boolean;
           is_dismissed?: boolean;
+          is_critical?: boolean;
           created_at?: string;
         };
       };

@@ -71,6 +71,8 @@ CREATE TABLE IF NOT EXISTS clinic_system.appointments (
   consultation_mode clinic_system.consultation_mode DEFAULT 'school_free' NOT NULL,
   consultation_fee NUMERIC(10,2) DEFAULT 0.00 NOT NULL,
   scheduled_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  parent_appointment_id UUID REFERENCES clinic_system.appointments(id) ON DELETE SET NULL,
+  is_follow_up BOOLEAN DEFAULT false NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -88,6 +90,9 @@ CREATE TABLE IF NOT EXISTS clinic_system.medical_records (
   treatment_plan TEXT,
   doctor_notes TEXT,
   clearance_type TEXT,
+  requires_follow_up BOOLEAN DEFAULT false NOT NULL,
+  follow_up_date DATE,
+  follow_up_instructions TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -115,6 +120,7 @@ CREATE TABLE IF NOT EXISTS clinic_system.notifications (
   action_url TEXT,
   is_read BOOLEAN DEFAULT false NOT NULL,
   is_dismissed BOOLEAN DEFAULT false NOT NULL,
+  is_critical BOOLEAN DEFAULT false NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

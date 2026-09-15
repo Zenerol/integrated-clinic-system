@@ -38,32 +38,39 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-900/25 backdrop-blur-sm dark:bg-black/50 animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/40 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className={`w-full ${sizeMap[size]} bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]`}
+        className={`w-full ${sizeMap[size]} bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/90 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] font-sans transition-all duration-200`}
       >
         {/* Modal Header */}
-        <div className="flex items-start justify-between p-5 pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50">
-          <div>
-            <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">{title}</h3>
-            {subtitle && <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">{subtitle}</p>}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-100 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 shrink-0">
+          <div className="pr-4">
+            <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-snug">
+              {title}
+            </h3>
+            {subtitle && (
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium leading-relaxed">
+                {subtitle}
+              </p>
+            )}
           </div>
           <button
             onClick={onClose}
-            className="flex items-center gap-1 text-rose-700 dark:text-rose-300 hover:text-rose-900 dark:hover:text-rose-100 px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 transition duration-150 cursor-pointer border border-rose-300 dark:border-rose-500/40 text-xs font-bold"
-            title="Close Window"
+            className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition duration-150 cursor-pointer shrink-0"
+            title="Close"
           >
-            <X className="w-4 h-4 text-rose-600 dark:text-rose-400" />
-            <span className="hidden sm:inline">Close</span>
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Modal Content */}
-        <div className="p-6 overflow-y-auto flex-1 text-slate-800 dark:text-slate-200 font-medium">{children}</div>
+        <div className="p-5 sm:p-6 overflow-y-auto flex-1 text-slate-800 dark:text-slate-200 font-medium">
+          {children}
+        </div>
 
         {/* Modal Footer */}
         {footer && (
-          <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 flex items-center justify-end gap-3">
+          <div className="px-5 sm:px-6 py-3.5 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/50 flex items-center justify-end gap-2.5 shrink-0 rounded-b-2xl">
             {footer}
           </div>
         )}

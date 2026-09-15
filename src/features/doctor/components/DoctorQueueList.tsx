@@ -65,6 +65,11 @@ export const DoctorQueueList: React.FC<DoctorQueueListProps> = ({
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
+                {(item.is_follow_up || item.parent_appointment_id) && (
+                  <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-500/15 dark:text-indigo-300 dark:border-indigo-500/30 px-2 py-0.5 rounded-full text-xs font-semibold">
+                    Follow-Up Case
+                  </span>
+                )}
                 <Badge variant="purple" icon={<Stethoscope className="w-3.5 h-3.5" />}>
                   Ready for Doctor
                 </Badge>
