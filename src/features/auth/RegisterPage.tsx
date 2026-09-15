@@ -9,7 +9,7 @@ import { InstitutionRow } from '../../types/clinic.types';
 import { DEFAULT_PARTNER_INSTITUTIONS, institutionService } from '../../services/institutionService';
 import { getPasswordStrength, passwordSchema } from '../../utils/validationSchemas';
 import { sanitizeInput } from '../../utils/security';
-import { Mail, Lock, User, IdCard, Building2, Phone, MapPin, UserPlus, AlertCircle, GraduationCap, UserCheck, Stethoscope, CheckCircle2, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, User, IdCard, Building2, Phone, MapPin, UserPlus, AlertCircle, GraduationCap, UserCheck, Stethoscope, CheckCircle2, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
   const { signUp } = useAuth();
@@ -127,53 +127,83 @@ export const RegisterPage: React.FC = () => {
 
   if (submittedSuccess) {
     return (
-      <div className="text-center py-6 space-y-5 animate-in zoom-in-95 duration-200">
-        <div className="mx-auto w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-500/20 border-4 border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xl">
-          <CheckCircle2 className="w-10 h-10 animate-bounce" />
+      <div className="text-center py-4 px-1 space-y-6 animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-300 ease-out">
+        {/* Animated Radiant Glow Badge */}
+        <div className="relative inline-flex items-center justify-center">
+          <div className="absolute -inset-3 rounded-full bg-gradient-to-r from-teal-500/30 via-emerald-400/40 to-teal-600/30 blur-xl opacity-80 animate-pulse" />
+          
+          <div className="relative w-20 h-20 rounded-3xl bg-gradient-to-tr from-teal-600 via-emerald-500 to-teal-400 p-0.5 shadow-xl shadow-teal-500/25">
+            <div className="w-full h-full rounded-[22px] bg-white dark:bg-slate-900 flex items-center justify-center text-teal-600 dark:text-teal-400">
+              <CheckCircle2 className="w-10 h-10 text-teal-600 dark:text-teal-400 animate-in zoom-in duration-300" />
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-1.5">
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-            Account Created Successfully! 🎉
+        {/* Title & Status Pill */}
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/20 text-teal-700 dark:text-teal-300 text-[11px] font-extrabold uppercase tracking-wider shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-teal-500" />
+            <span>Account Active & Ready</span>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
+            Account Created Successfully!
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-semibold max-w-sm mx-auto">
-            Welcome to the Multi-School Consortium & Community Clinic Platform. Your patient account is now registered and active.
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium max-w-sm mx-auto leading-relaxed">
+            Welcome to the Campus & Community Health Platform. Your patient account is active and ready to use.
           </p>
         </div>
 
-        <div className="p-4 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700/80 text-left text-xs space-y-2 font-medium max-w-md mx-auto shadow-xs">
-          <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-700/60 pb-2">
-            <span className="text-slate-500 dark:text-slate-400 font-semibold">Registered Patient:</span>
-            <strong className="text-slate-900 dark:text-slate-100 font-black">{fullName}</strong>
+        {/* Polished Detail Summary Card */}
+        <div className="p-4 sm:p-5 bg-gradient-to-b from-slate-50 via-slate-100/60 to-slate-50 dark:from-slate-800/80 dark:to-slate-900/80 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 text-left text-xs space-y-3 font-medium max-w-md mx-auto shadow-xs backdrop-blur-xs">
+          <div className="flex justify-between items-center pb-2.5 border-b border-slate-200 dark:border-slate-700/60">
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-semibold">
+              <User className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              <span>Registered Patient</span>
+            </div>
+            <strong className="text-slate-900 dark:text-slate-100 font-black text-xs sm:text-sm">{fullName}</strong>
           </div>
-          <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-700/60 pb-2">
-            <span className="text-slate-500 dark:text-slate-400 font-semibold">Account Email:</span>
-            <strong className="text-teal-700 dark:text-teal-400 font-bold">{email}</strong>
+
+          <div className="flex justify-between items-center pb-2.5 border-b border-slate-200 dark:border-slate-700/60">
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-semibold">
+              <Mail className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              <span>Account Email</span>
+            </div>
+            <span className="px-2 py-0.5 rounded-lg bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 font-bold text-xs border border-teal-200/50 dark:border-teal-800/50">{email}</span>
           </div>
+
           <div className="flex justify-between items-center">
-            <span className="text-slate-500 dark:text-slate-400 font-semibold">Affiliation Category:</span>
-            <strong className="text-slate-900 dark:text-slate-100 font-extrabold uppercase">
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-semibold">
+              {categoryMode === 'campus' ? (
+                <GraduationCap className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              ) : (
+                <UserCheck className="w-4 h-4 text-amber-500" />
+              )}
+              <span>Affiliation Category</span>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-slate-200/80 dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-black text-[11px] uppercase tracking-wider">
               {categoryMode === 'campus' ? `Campus ${patientType}` : 'Community Outpatient'}
-            </strong>
+            </span>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 max-w-md mx-auto pt-2">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto pt-1">
           <Button
             variant="primary"
             size="lg"
             onClick={() => navigate('/portal')}
-            icon={<ArrowRight className="w-4 h-4" />}
-            className="w-full shadow-md"
+            className="w-full sm:flex-1 py-3 px-5 text-sm font-extrabold tracking-wide bg-gradient-to-r from-teal-600 via-teal-700 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white rounded-xl shadow-lg shadow-teal-600/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 group cursor-pointer"
           >
-            Proceed to Patient Portal
+            <span>Proceed to Patient Portal</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Button>
 
           <Button
             variant="secondary"
             size="lg"
             onClick={() => navigate('/login')}
-            className="w-full"
+            className="w-full sm:flex-1 py-3 px-5 text-sm font-bold tracking-wide bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-xl transition-all duration-200 cursor-pointer"
           >
             Sign In to Account
           </Button>
