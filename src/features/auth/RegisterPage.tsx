@@ -101,13 +101,24 @@ export const RegisterPage: React.FC = () => {
       });
 
       if (error) {
-        setErrorMessage(error.message || 'Registration failed.');
+        const msg = error.message?.toLowerCase() || '';
+        if (msg.includes('rate limit') || error.status === 429) {
+          setErrorMessage('Too many sign up attempts. Email rate limit reached by authentication provider — please wait a moment or try signing in.');
+        } else if (msg.includes('already registered') || msg.includes('already exists') || msg.includes('user_already_exists')) {
+          setErrorMessage('This email address is already registered. Please click "Sign In" below.');
+        } else {
+          setErrorMessage(error.message || 'Registration failed. Please try again.');
+        }
       } else {
         setSubmittedSuccess(true);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'An error occurred during account registration.';
-      setErrorMessage(msg);
+      if (msg.toLowerCase().includes('rate limit')) {
+        setErrorMessage('Too many sign up attempts. Email rate limit reached — please try again in a few minutes.');
+      } else {
+        setErrorMessage(msg);
+      }
     } finally {
       setLoading(false);
       isSubmittingRef.current = false;
