@@ -155,25 +155,51 @@ export const NurseDashboard: React.FC = () => {
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="p-4.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/5 border border-amber-200/80 dark:border-amber-500/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] text-amber-900 dark:text-amber-300 font-extrabold uppercase tracking-wider">Pending Requests</p>
-            <p className="text-2xl font-black text-amber-950 dark:text-amber-200 mt-1">{pendingAppointments.length}</p>
-            <p className="text-[10px] text-amber-700/80 dark:text-amber-400/80 font-bold mt-1">Awaiting Nurse Verification</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {/* Card 1: Pending Requests */}
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-amber-500">
+          <div className="space-y-1">
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Pending Consultation Requests
+            </p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                {pendingAppointments.length}
+              </span>
+              <span className="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-500/30">
+                Action Required
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold pt-1">
+              Awaiting Nurse Verification & Approval
+            </p>
           </div>
-          <div className="p-3 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 shadow-xs">
+
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0 border border-amber-200/80 dark:border-amber-500/30 shadow-xs">
             <Clock className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="p-4.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-200/80 dark:border-emerald-500/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] text-emerald-900 dark:text-emerald-300 font-extrabold uppercase tracking-wider">Patients In Queue</p>
-            <p className="text-2xl font-black text-emerald-950 dark:text-emerald-200 mt-1">{activeQueue.length}</p>
-            <p className="text-[10px] text-emerald-700/80 dark:text-emerald-400/80 font-bold mt-1">On-Site Triage & Intake Desk</p>
+        {/* Card 2: Patients in Queue */}
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-emerald-600 dark:border-l-emerald-500">
+          <div className="space-y-1">
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Active Clinic Queue
+            </p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                {activeQueue.length}
+              </span>
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/30">
+                In Clinic Queue
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold pt-1">
+              On-Site Triage & Vitals Intake Desk
+            </p>
           </div>
-          <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shadow-xs">
+
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0 border border-emerald-200/80 dark:border-emerald-500/30 shadow-xs">
             <Users className="w-6 h-6" />
           </div>
         </div>

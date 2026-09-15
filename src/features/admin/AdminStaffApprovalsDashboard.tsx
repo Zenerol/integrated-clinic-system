@@ -190,52 +190,52 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Analytics & Metrics Cards (Enhanced Translucent Micro-Borders & Soft Ambient Shadows) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Analytics & Metrics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Total Members */}
-        <div className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-700/60 bg-white/90 dark:bg-slate-900/90 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
-          <div>
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-teal-600 dark:border-l-teal-500">
+          <div className="space-y-1">
             <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Members</p>
-            <p className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-1">{totalCount}</p>
-            <p className="text-[10px] text-teal-600 dark:text-teal-400 font-bold mt-1">{patientCount} Registered Patients</p>
+            <p className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{totalCount}</p>
+            <p className="text-xs text-teal-600 dark:text-teal-400 font-bold pt-1">{patientCount} Registered Patients</p>
           </div>
-          <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-300 flex items-center justify-center shrink-0 border border-teal-200/80 dark:border-teal-500/30 shadow-xs">
             <Users className="w-6 h-6" />
           </div>
         </div>
 
         {/* Pending Approvals */}
-        <div className="p-4 rounded-xl border border-amber-200/80 dark:border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-amber-800 dark:text-amber-400">Pending Staff</p>
-            <p className="text-2xl font-black text-amber-900 dark:text-amber-300 mt-1">{pendingCount}</p>
-            <p className="text-[10px] text-amber-700 dark:text-amber-400 font-bold mt-1">Awaiting Credential Review</p>
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-amber-500">
+          <div className="space-y-1">
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Pending Staff</p>
+            <p className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{pendingCount}</p>
+            <p className="text-xs text-amber-700 dark:text-amber-400 font-bold pt-1">Awaiting Credential Review</p>
           </div>
-          <div className="p-3 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0 border border-amber-200/80 dark:border-amber-500/30 shadow-xs">
             <Clock className="w-6 h-6" />
           </div>
         </div>
 
         {/* Active Doctors */}
-        <div className="p-4 rounded-xl border border-purple-200/80 dark:border-purple-500/30 bg-purple-500/10 dark:bg-purple-500/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-purple-800 dark:text-purple-400">Active Doctors</p>
-            <p className="text-2xl font-black text-purple-900 dark:text-purple-300 mt-1">{doctorCount}</p>
-            <p className="text-[10px] text-purple-700 dark:text-purple-400 font-bold mt-1">Licensed Physicians</p>
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-purple-600 dark:border-l-purple-500">
+          <div className="space-y-1">
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Active Doctors</p>
+            <p className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{doctorCount}</p>
+            <p className="text-xs text-purple-700 dark:text-purple-400 font-bold pt-1">Licensed Physicians</p>
           </div>
-          <div className="p-3 rounded-xl bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30">
+          <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0 border border-purple-200/80 dark:border-purple-500/30 shadow-xs">
             <Stethoscope className="w-6 h-6" />
           </div>
         </div>
 
         {/* Active Nurses */}
-        <div className="p-4 rounded-xl border border-emerald-200/80 dark:border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-500/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">Active Nurses</p>
-            <p className="text-2xl font-black text-emerald-900 dark:text-emerald-300 mt-1">{nurseCount}</p>
-            <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold mt-1">Clinical Intake RNs</p>
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-emerald-600 dark:border-l-emerald-500">
+          <div className="space-y-1">
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Active Nurses</p>
+            <p className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{nurseCount}</p>
+            <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold pt-1">Clinical Intake RNs</p>
           </div>
-          <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0 border border-emerald-200/80 dark:border-emerald-500/30 shadow-xs">
             <HeartPulse className="w-6 h-6" />
           </div>
         </div>

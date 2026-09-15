@@ -122,26 +122,71 @@ export const DoctorDashboard: React.FC = () => {
       </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="p-4.5 rounded-xl bg-purple-500/10 dark:bg-purple-500/5 border border-purple-200/80 dark:border-purple-500/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] text-purple-900 dark:text-purple-300 font-extrabold uppercase tracking-wider">Patients In Queue</p>
-            <p className="text-2xl font-black text-purple-950 dark:text-purple-200 mt-1">{doctorQueue.length}</p>
-            <p className="text-[10px] text-purple-700/80 dark:text-purple-400/80 font-bold mt-1">Ready for Doctor Assessment</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* Card 1: Patients In Queue */}
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-purple-600 dark:border-l-purple-500">
+          <div className="space-y-1">
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Patients In Queue
+            </p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                {doctorQueue.length}
+              </span>
+              <span className="text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-500/15 px-2.5 py-0.5 rounded-full border border-purple-200 dark:border-purple-500/30">
+                Active Queue
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold pt-1">
+              Triaged & Awaiting Doctor Assessment
+            </p>
           </div>
-          <div className="p-3 rounded-xl bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30 shadow-xs">
+
+          <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0 border border-purple-200/80 dark:border-purple-500/30 shadow-xs">
             <Users className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="p-4.5 rounded-xl bg-teal-500/10 dark:bg-teal-500/5 border border-teal-200/80 dark:border-teal-500/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] text-teal-900 dark:text-teal-300 font-extrabold uppercase tracking-wider">Clinical Station</p>
-            <p className="text-base font-extrabold text-teal-950 dark:text-teal-200 mt-1">Active Encounter Desk</p>
-            <p className="text-[10px] text-teal-700/80 dark:text-teal-400/80 font-bold mt-1">Real-time Triage Sync</p>
+        {/* Card 2: Clinical Station */}
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-teal-600 dark:border-l-teal-500">
+          <div className="space-y-1">
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Clinical Desk Status
+            </p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                Doctor Station #1
+              </span>
+            </div>
+            <p className="text-xs text-teal-600 dark:text-teal-400 font-bold flex items-center gap-1.5 pt-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Real-time Intake Sync Active
+            </p>
           </div>
-          <div className="p-3 rounded-xl bg-teal-500/20 text-teal-700 dark:text-teal-300 border border-teal-500/30 shadow-xs">
+
+          <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-300 flex items-center justify-center shrink-0 border border-teal-200/80 dark:border-teal-500/30 shadow-xs">
             <Clock className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* Card 3: Medical Cert Generator */}
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-emerald-600 dark:border-l-emerald-500 hidden lg:flex">
+          <div className="space-y-1">
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Medical Documentation
+            </p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                Clearance Generator
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold pt-1">
+              Digital Signature & Rx Enabled
+            </p>
+          </div>
+
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0 border border-emerald-200/80 dark:border-emerald-500/30 shadow-xs">
+            <Stethoscope className="w-6 h-6" />
           </div>
         </div>
       </div>
