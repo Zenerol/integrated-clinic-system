@@ -11,9 +11,14 @@ export const UrgentToastCard: React.FC = () => {
   if (!urgentNotification) return null;
 
   const handleAction = async () => {
-    await markAsRead(urgentNotification.id);
-    if (urgentNotification.action_url) {
-      navigate(urgentNotification.action_url);
+    try {
+      await markAsRead(urgentNotification.id);
+      await dismissNotification(urgentNotification.id);
+      if (urgentNotification.action_url) {
+        navigate(urgentNotification.action_url);
+      }
+    } catch (err) {
+      console.error('Failed to execute notification action:', err);
     }
   };
 
@@ -37,6 +42,14 @@ export const UrgentToastCard: React.FC = () => {
     return 'border-l-rose-500';
   };
 
+  const getActionButtonLabel = () => {
+    const title = urgentNotification.title?.toLowerCase() || '';
+    if (title.includes('follow-up')) return 'Book Follow-Up';
+    if (title.includes('staff') || title.includes('approval')) return 'Review Application';
+    if (title.includes('triage') || title.includes('consultation')) return 'View Request';
+    return 'Review Details';
+  };
+
   return (
     <div className="fixed bottom-5 right-5 z-50 max-w-sm w-full animate-in slide-in-from-bottom-4 duration-200">
       <div className={`bg-white dark:bg-slate-900 border-l-4 ${getBorderColor()} border-y border-r border-slate-200/80 dark:border-slate-800 rounded-xl shadow-2xl p-4 flex flex-col gap-3 font-sans`}>
@@ -56,7 +69,7 @@ export const UrgentToastCard: React.FC = () => {
           <button
             onClick={() => dismissNotification(urgentNotification.id)}
             className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition duration-150 cursor-pointer"
-            title="Dismiss"
+            title="Dismiss Alert"
           >
             <X className="w-4 h-4" />
           </button>
@@ -78,17 +91,15 @@ export const UrgentToastCard: React.FC = () => {
             Dismiss
           </Button>
 
-          {urgentNotification.action_url && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleAction}
-              className="!text-xs !py-1.5 !px-3 flex items-center gap-1.5 shadow-sm"
-            >
-              <span>{urgentNotification.title?.toLowerCase().includes('follow-up') ? 'Book Now' : 'Review'}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Button>
-          )}
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleAction}
+            className="!text-xs !py-1.5 !px-3 flex items-center gap-1.5 shadow-sm"
+          >
+            <span>{getActionButtonLabel()}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Button>
         </div>
       </div>
     </div>

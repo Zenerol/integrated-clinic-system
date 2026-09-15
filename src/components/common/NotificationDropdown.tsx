@@ -105,36 +105,34 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
           </div>
         ) : (
           notifications.map((item) => {
-            const style = getNotificationTypeStyle(item.type);
-
             return (
               <div
                 key={item.id}
                 onClick={() => !item.is_read && markAsRead(item.id)}
                 className={`p-3.5 transition flex items-start gap-3 cursor-pointer ${
                   item.is_read
-                    ? 'bg-white dark:bg-slate-900 opacity-75 hover:bg-slate-50 dark:hover:bg-slate-800/40'
-                    : 'bg-teal-50/50 dark:bg-teal-500/5 hover:bg-teal-50 dark:hover:bg-teal-500/10'
+                    ? 'bg-white dark:bg-slate-900 border-l-4 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/40 opacity-80'
+                    : 'bg-teal-50/80 dark:bg-teal-950/40 border-l-4 border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-950/60 shadow-2xs font-semibold'
                 }`}
               >
                 {getTypeIcon(item.type)}
 
                 <div className="flex-1 min-w-0 space-y-1">
                   <div className="flex items-center justify-between gap-2">
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                    <h4 className={`text-xs ${item.is_read ? 'font-semibold text-slate-700 dark:text-slate-300' : 'font-extrabold text-slate-900 dark:text-slate-100'} truncate`}>
                       {item.title}
                     </h4>
                     {!item.is_read && (
-                      <span className="w-2 h-2 rounded-full bg-teal-600 shrink-0" title="Unread" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-teal-600 dark:bg-teal-400 shrink-0 ring-4 ring-teal-500/20 animate-pulse" title="Unread Notification" />
                     )}
                   </div>
 
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+                  <p className={`text-xs leading-snug ${item.is_read ? 'text-slate-500 dark:text-slate-400' : 'text-slate-800 dark:text-slate-200 font-medium'}`}>
                     {item.message}
                   </p>
 
                   <div className="flex items-center justify-between pt-1">
-                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">
                       {formatDate(item.created_at)}
                     </span>
 
@@ -144,7 +142,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
                         dismissNotification(item.id);
                       }}
                       className="p-1 rounded text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition"
-                      title="Delete notification"
+                      title="Delete from notification history"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

@@ -27,9 +27,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const processNotificationTiers = (list: NotificationRow[]) => {
     const undismissed = list.filter((n) => !n.is_dismissed);
     
-    // Tier 1: Urgent / Critical Toast
+    // Tier 1: Urgent / Critical Toast (only pop up for UNREAD & UNDISMISSED urgent items to prevent flash on refresh)
     const urgent = undismissed.find(
-      (n) => n.is_critical || n.type === 'urgent' || n.title?.toLowerCase().includes('follow-up')
+      (n) => !n.is_read && (n.is_critical || n.type === 'urgent' || n.title?.toLowerCase().includes('follow-up'))
     );
     setUrgentNotification(urgent || null);
 
