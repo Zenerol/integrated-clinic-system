@@ -104,9 +104,6 @@ export const PatientDashboard: React.FC = () => {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <Badge variant={profile?.patient_type === 'external_client' ? 'warning' : 'info'}>
-            {badgeStyle.label}
-          </Badge>
           <Button
             variant="outline"
             size="sm"
@@ -128,70 +125,50 @@ export const PatientDashboard: React.FC = () => {
       </div>
 
       {/* Overview Stat Cards for Patient */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 max-w-3xl gap-4">
         {/* Card 1: Active Consultations */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-teal-600 dark:border-l-teal-500">
-          <div className="space-y-1">
+        <div className="py-3.5 px-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-sm transition-all duration-200 flex items-center justify-between gap-4">
+          <div className="space-y-0.5">
             <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Active Consultations
             </p>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+              <span className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
                 {activeCount}
               </span>
-              <span className="text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-500/15 px-2.5 py-0.5 rounded-full border border-teal-200 dark:border-teal-500/30">
+              <span className="text-[11px] font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-500/15 px-2 py-0.5 rounded-md border border-teal-200 dark:border-teal-500/30">
                 In Progress
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold pt-1">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
               Upcoming & Triaged Visits
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-300 flex items-center justify-center shrink-0 border border-teal-200/80 dark:border-teal-500/30 shadow-xs">
-            <Calendar className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-300 flex items-center justify-center shrink-0 border border-teal-200/80 dark:border-teal-500/30">
+            <Calendar className="w-5 h-5" />
           </div>
         </div>
 
         {/* Card 2: Medical Records */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-emerald-600 dark:border-l-emerald-500">
-          <div className="space-y-1">
+        <div className="py-3.5 px-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-sm transition-all duration-200 flex items-center justify-between gap-4">
+          <div className="space-y-0.5">
             <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Medical Certificates & Rx
             </p>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+              <span className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
                 {historyRecords.length}
               </span>
-              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/30">
+              <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/15 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-500/30">
                 Finalized
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold pt-1">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
               Available for Preview & Print
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0 border border-emerald-200/80 dark:border-emerald-500/30 shadow-xs">
-            <Pill className="w-6 h-6" />
-          </div>
-        </div>
-
-        {/* Card 3: Patient Category */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-purple-600 dark:border-l-purple-500">
-          <div className="space-y-1">
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Patient Category
-            </p>
-            <div className="flex items-baseline gap-2">
-              <span className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                {badgeStyle.label}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold pt-1">
-              Verified Clinic Profile
-            </p>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0 border border-purple-200/80 dark:border-purple-500/30 shadow-xs">
-            <User className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0 border border-emerald-200/80 dark:border-emerald-500/30">
+            <Pill className="w-5 h-5" />
           </div>
         </div>
       </div>

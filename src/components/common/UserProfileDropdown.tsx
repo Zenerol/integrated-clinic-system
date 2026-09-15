@@ -72,8 +72,8 @@ export const UserProfileDropdown: React.FC = () => {
         const sub =
           profile.patient_type === 'student'
             ? profile.school_id_number
-              ? `Student (ID: ${profile.school_id_number})`
-              : 'Campus Student'
+              ? `Student • ID: ${profile.school_id_number}`
+              : 'Student Patient'
             : profile.patient_type === 'faculty_staff'
             ? 'Faculty / Staff Member'
             : 'Community Outpatient';

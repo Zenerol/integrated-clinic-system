@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Profile } from '../../types/auth.types';
 import { adminService } from '../../services/adminService';
@@ -31,9 +32,17 @@ import {
 
 export const AdminStaffApprovalsDashboard: React.FC = () => {
   const { profile: adminProfile } = useAuth();
+  const location = useLocation();
 
-  // State
-  const [activeTab, setActiveTab] = useState<'approvals' | 'members'>('approvals');
+  // State & Route Tab Sync
+  const [activeTab, setActiveTab] = useState<'approvals' | 'members'>(
+    location.pathname.includes('/members') ? 'members' : 'approvals'
+  );
+
+  useEffect(() => {
+    setActiveTab(location.pathname.includes('/members') ? 'members' : 'approvals');
+  }, [location.pathname]);
+
   const [approvalsFilter, setApprovalsFilter] = useState<'pending' | 'staff_all'>('pending');
 
   const [allMembers, setAllMembers] = useState<Profile[]>([]);
@@ -191,83 +200,54 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
       </div>
 
       {/* Analytics & Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Members */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-teal-600 dark:border-l-teal-500">
-          <div className="space-y-1">
+        <div className="py-3.5 px-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-sm transition-all duration-200 flex items-center justify-between gap-4">
+          <div className="space-y-0.5">
             <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Members</p>
-            <p className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{totalCount}</p>
-            <p className="text-xs text-teal-600 dark:text-teal-400 font-bold pt-1">{patientCount} Registered Patients</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">{totalCount}</p>
+            <p className="text-[11px] text-teal-600 dark:text-teal-400 font-bold">{patientCount} Patients</p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-300 flex items-center justify-center shrink-0 border border-teal-200/80 dark:border-teal-500/30 shadow-xs">
-            <Users className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-300 flex items-center justify-center shrink-0 border border-teal-200/80 dark:border-teal-500/30">
+            <Users className="w-5 h-5" />
           </div>
         </div>
 
         {/* Pending Approvals */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-amber-500">
-          <div className="space-y-1">
+        <div className="py-3.5 px-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-sm transition-all duration-200 flex items-center justify-between gap-4">
+          <div className="space-y-0.5">
             <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Pending Staff</p>
-            <p className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{pendingCount}</p>
-            <p className="text-xs text-amber-700 dark:text-amber-400 font-bold pt-1">Awaiting Credential Review</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">{pendingCount}</p>
+            <p className="text-[11px] text-amber-700 dark:text-amber-400 font-bold">Awaiting Review</p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0 border border-amber-200/80 dark:border-amber-500/30 shadow-xs">
-            <Clock className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0 border border-amber-200/80 dark:border-amber-500/30">
+            <Clock className="w-5 h-5" />
           </div>
         </div>
 
         {/* Active Doctors */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-purple-600 dark:border-l-purple-500">
-          <div className="space-y-1">
+        <div className="py-3.5 px-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-sm transition-all duration-200 flex items-center justify-between gap-4">
+          <div className="space-y-0.5">
             <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Active Doctors</p>
-            <p className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{doctorCount}</p>
-            <p className="text-xs text-purple-700 dark:text-purple-400 font-bold pt-1">Licensed Physicians</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">{doctorCount}</p>
+            <p className="text-[11px] text-purple-700 dark:text-purple-400 font-bold">Physicians</p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0 border border-purple-200/80 dark:border-purple-500/30 shadow-xs">
-            <Stethoscope className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0 border border-purple-200/80 dark:border-purple-500/30">
+            <Stethoscope className="w-5 h-5" />
           </div>
         </div>
 
         {/* Active Nurses */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-4 border-l-4 border-l-emerald-600 dark:border-l-emerald-500">
-          <div className="space-y-1">
+        <div className="py-3.5 px-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-sm transition-all duration-200 flex items-center justify-between gap-4">
+          <div className="space-y-0.5">
             <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Active Nurses</p>
-            <p className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{nurseCount}</p>
-            <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold pt-1">Clinical Intake RNs</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">{nurseCount}</p>
+            <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold">Clinical RNs</p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0 border border-emerald-200/80 dark:border-emerald-500/30 shadow-xs">
-            <HeartPulse className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0 border border-emerald-200/80 dark:border-emerald-500/30">
+            <HeartPulse className="w-5 h-5" />
           </div>
         </div>
-      </div>
-
-      {/* Main Mode Navigation Tabs (Approvals vs Member Directory) */}
-      <div className="flex bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700/60 max-w-lg shadow-xs">
-        <button
-          type="button"
-          onClick={() => setActiveTab('approvals')}
-          className={`flex-1 py-2.5 text-xs font-black rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${
-            activeTab === 'approvals'
-              ? 'bg-amber-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
-          }`}
-        >
-          <ShieldCheck className="w-4 h-4" />
-          Staff Approvals ({pendingCount})
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('members')}
-          className={`flex-1 py-2.5 text-xs font-black rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${
-            activeTab === 'members'
-              ? 'bg-teal-700 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
-          }`}
-        >
-          <Users className="w-4 h-4" />
-          Manage All Members ({totalCount})
-        </button>
       </div>
 
       {/* TAB 1: STAFF APPROVALS WORKSPACE */}
