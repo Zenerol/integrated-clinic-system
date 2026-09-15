@@ -28,6 +28,14 @@ import {
   Ban,
   Stethoscope,
   HeartPulse,
+  Eye,
+  Pencil,
+  Trash2,
+  UserPlus,
+  IdCard,
+  Phone,
+  MapPin,
+  Building,
 } from 'lucide-react';
 
 export const AdminStaffApprovalsDashboard: React.FC = () => {
@@ -64,6 +72,26 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
     member: Profile;
     targetStatus: 'active' | 'suspended';
   } | null>(null);
+
+  // CRUD Modals state
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [viewingMember, setViewingMember] = useState<Profile | null>(null);
+  const [editingMember, setEditingMember] = useState<Profile | null>(null);
+  const [deletingMember, setDeletingMember] = useState<Profile | null>(null);
+
+  // Form state for Create / Edit Member
+  const [formData, setFormData] = useState({
+    full_name: '',
+    role: 'client' as 'admin' | 'doctor' | 'nurse' | 'client',
+    patient_type: 'external_client' as 'student' | 'faculty_staff' | 'external_client',
+    school_id_number: '',
+    department_or_course: '',
+    contact_number: '',
+    address: '',
+    professional_license_no: '',
+    account_status: 'active' as 'active' | 'pending_approval' | 'suspended' | 'rejected',
+  });
+  const [formError, setFormError] = useState<string | null>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -162,6 +190,79 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
       await loadData();
     } catch (err) {
       console.error('Failed to update member status:', err);
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  // --- CRUD Handlers ---
+  const handleOpenCreateModal = () => {
+    setFormData({
+      full_name: '',
+      role: 'client',
+      patient_type: 'external_client',
+      school_id_number: '',
+      department_or_course: '',
+      contact_number: '',
+      address: '',
+      professional_license_no: '',
+      account_status: 'active',
+    });
+    setFormError(null);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleOpenEditModal = (member: Profile) => {
+    setEditingMember(member);
+    setFormData({
+      full_name: member.full_name,
+      role: member.role,
+      patient_type: member.patient_type || 'external_client',
+      school_id_number: member.school_id_number || '',
+      department_or_course: member.department_or_course || '',
+      contact_number: member.contact_number || '',
+      address: member.address || '',
+      professional_license_no: member.professional_license_no || '',
+      account_status: member.account_status || 'active',
+    });
+    setFormError(null);
+  };
+
+  const handleSaveMember = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!formData.full_name.trim()) {
+      setFormError('Full Name is required.');
+      return;
+    }
+
+    setFormError(null);
+    setLoading(true);
+    try {
+      if (editingMember) {
+        await adminService.updateMember(editingMember.id, formData);
+        setEditingMember(null);
+      } else {
+        await adminService.createMember(formData);
+        setIsCreateModalOpen(false);
+      }
+      await loadData();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to save member details.';
+      setFormError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmDeleteMember = async () => {
+    if (!deletingMember) return;
+    setActionLoadingId(deletingMember.id);
+    try {
+      await adminService.deleteMember(deletingMember.id);
+      setDeletingMember(null);
+      await loadData();
+    } catch (err) {
+      console.error('Failed to delete member:', err);
     } finally {
       setActionLoadingId(null);
     }
@@ -365,7 +466,24 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
                               </Button>
                             </div>
                           ) : (
-                            <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">No Pending Action</span>
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => setViewingMember(staff)}
+                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+                                title="View Details"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditModal(staff)}
+                                className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/15 hover:bg-amber-100 dark:hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40 transition cursor-pointer"
+                                title="Edit Profile"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -381,7 +499,7 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
       {/* TAB 2: MANAGE ALL MEMBERS */}
       {activeTab === 'members' && (
         <div className="space-y-4">
-          {/* Controls Header: Search & Filters */}
+          {/* Controls Header: Search, Filters & Add Member */}
           <div className="p-4 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-700/60 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
             {/* Search Input */}
             <div className="flex-1 relative">
@@ -393,9 +511,9 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
               />
             </div>
 
-            {/* Filter Dropdowns */}
+            {/* Filter Dropdowns & Add Button */}
             <div className="flex flex-wrap items-center gap-3">
-              <div className="w-40">
+              <div className="w-36 sm:w-40">
                 <Select
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value)}
@@ -409,7 +527,7 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
                 />
               </div>
 
-              <div className="w-40">
+              <div className="w-36 sm:w-40">
                 <Select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -422,6 +540,15 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
                   ]}
                 />
               </div>
+
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleOpenCreateModal}
+                icon={<UserPlus className="w-4 h-4" />}
+              >
+                Add New Member
+              </Button>
             </div>
           </div>
 
@@ -449,7 +576,7 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
                       <th className="py-3.5 px-4">ID / License No</th>
                       <th className="py-3.5 px-4">Joined Date</th>
                       <th className="py-3.5 px-4">Account Status</th>
-                      <th className="py-3.5 px-4 text-right">Account Actions</th>
+                      <th className="py-3.5 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200">
@@ -519,60 +646,64 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
                           {member.account_status === 'rejected' && <Badge variant="danger">Declined</Badge>}
                         </td>
 
-                        {/* Actions */}
+                        {/* HCI Compliant Action Column Buttons */}
                         <td className="py-3.5 px-4 text-right">
                           {member.id === adminProfile?.id ? (
                             <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">Current Admin</span>
                           ) : (
-                            <div className="flex items-center justify-end gap-2">
-                              {member.account_status === 'active' && (
-                                <Button
-                                  variant="danger"
-                                  size="sm"
+                            <div className="flex items-center justify-end gap-1.5">
+                              {/* 1. View Profile Details */}
+                              <button
+                                type="button"
+                                onClick={() => setViewingMember(member)}
+                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+                                title="View Member Profile"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+                              </button>
+
+                              {/* 2. Edit Profile */}
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditModal(member)}
+                                className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/15 hover:bg-amber-100 dark:hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40 transition cursor-pointer"
+                                title="Edit Member Profile"
+                              >
+                                <Pencil className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                              </button>
+
+                              {/* 3. Suspend / Re-Activate */}
+                              {member.account_status === 'active' ? (
+                                <button
+                                  type="button"
                                   disabled={actionLoadingId === member.id}
                                   onClick={() => setActionTargetMember({ member, targetStatus: 'suspended' })}
-                                  icon={<Ban className="w-3.5 h-3.5" />}
+                                  className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-500/15 hover:bg-rose-100 dark:hover:bg-rose-500/25 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-500/40 transition cursor-pointer"
+                                  title="Suspend Member Account"
                                 >
-                                  Suspend
-                                </Button>
-                              )}
-
-                              {member.account_status === 'suspended' && (
-                                <Button
-                                  variant="success"
-                                  size="sm"
+                                  <Ban className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
                                   disabled={actionLoadingId === member.id}
                                   onClick={() => setActionTargetMember({ member, targetStatus: 'active' })}
-                                  icon={<UserCheck className="w-3.5 h-3.5" />}
+                                  className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 hover:bg-emerald-100 dark:hover:bg-emerald-500/25 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 transition cursor-pointer"
+                                  title="Re-Activate Member Account"
                                 >
-                                  Re-Activate
-                                </Button>
+                                  <UserCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                                </button>
                               )}
 
-                              {member.account_status === 'pending_approval' && (
-                                <Button
-                                  variant="primary"
-                                  size="sm"
-                                  onClick={() => {
-                                    setActiveTab('approvals');
-                                    setApprovalsFilter('pending');
-                                  }}
-                                >
-                                  Review Application
-                                </Button>
-                              )}
-
-                              {member.account_status === 'rejected' && (
-                                <Button
-                                  variant="secondary"
-                                  size="sm"
-                                  disabled={actionLoadingId === member.id}
-                                  onClick={() => setActionTargetMember({ member, targetStatus: 'active' })}
-                                  icon={<UserCheck className="w-3.5 h-3.5" />}
-                                >
-                                  Activate
-                                </Button>
-                              )}
+                              {/* 4. Delete Account */}
+                              <button
+                                type="button"
+                                onClick={() => setDeletingMember(member)}
+                                className="p-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white transition shadow-xs cursor-pointer"
+                                title="Delete Member Account"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-white" />
+                              </button>
                             </div>
                           )}
                         </td>
@@ -584,6 +715,256 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
             )}
           </div>
         </div>
+      )}
+
+      {/* CREATE / EDIT MEMBER MODAL */}
+      {(isCreateModalOpen || editingMember) && (
+        <Modal
+          isOpen={isCreateModalOpen || Boolean(editingMember)}
+          onClose={() => {
+            setIsCreateModalOpen(false);
+            setEditingMember(null);
+          }}
+          title={editingMember ? 'Edit Member Profile' : 'Add New Member'}
+          subtitle={editingMember ? `Editing profile for ${editingMember.full_name}` : 'Register a new patient, doctor, nurse, or admin user'}
+          footer={
+            <>
+              <Button
+                variant="cancel"
+                onClick={() => {
+                  setIsCreateModalOpen(false);
+                  setEditingMember(null);
+                }}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                isLoading={loading}
+                onClick={handleSaveMember}
+                icon={editingMember ? <CheckCircle2 className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+              >
+                {editingMember ? 'Save Changes' : 'Create Member'}
+              </Button>
+            </>
+          }
+        >
+          <form onSubmit={handleSaveMember} className="space-y-4">
+            {formError && (
+              <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-400 text-xs font-bold">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{formError}</span>
+              </div>
+            )}
+
+            <Input
+              label="Full Name *"
+              placeholder="e.g. Dr. John Doe, MD or Jane Smith"
+              value={formData.full_name}
+              onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+              required
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Select
+                label="Role *"
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
+                options={[
+                  { value: 'client', label: 'Patient / Client' },
+                  { value: 'doctor', label: 'Medical Doctor (MD)' },
+                  { value: 'nurse', label: 'Clinical Nurse (RN)' },
+                  { value: 'admin', label: 'System Admin' },
+                ]}
+              />
+
+              <Select
+                label="Patient Category"
+                value={formData.patient_type}
+                onChange={(e) => setFormData({ ...formData, patient_type: e.target.value as any })}
+                options={[
+                  { value: 'student', label: 'Student' },
+                  { value: 'faculty_staff', label: 'Faculty / Staff' },
+                  { value: 'external_client', label: 'External Community Outpatient' },
+                ]}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {formData.role === 'doctor' || formData.role === 'nurse' ? (
+                <Input
+                  label="PRC License Number"
+                  placeholder="e.g. PRC-0098412"
+                  value={formData.professional_license_no}
+                  onChange={(e) => setFormData({ ...formData, professional_license_no: e.target.value })}
+                />
+              ) : (
+                <Input
+                  label="School ID Number"
+                  placeholder="e.g. 2024-0012"
+                  value={formData.school_id_number}
+                  onChange={(e) => setFormData({ ...formData, school_id_number: e.target.value })}
+                />
+              )}
+
+              <Input
+                label="Department / Course"
+                placeholder="e.g. BS Information Technology"
+                value={formData.department_or_course}
+                onChange={(e) => setFormData({ ...formData, department_or_course: e.target.value })}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                label="Contact Phone Number"
+                placeholder="e.g. +63 917 555 0192"
+                value={formData.contact_number}
+                onChange={(e) => setFormData({ ...formData, contact_number: e.target.value })}
+              />
+
+              <Select
+                label="Account Status"
+                value={formData.account_status}
+                onChange={(e) => setFormData({ ...formData, account_status: e.target.value as any })}
+                options={[
+                  { value: 'active', label: 'Active' },
+                  { value: 'pending_approval', label: 'Pending Verification' },
+                  { value: 'suspended', label: 'Suspended' },
+                  { value: 'rejected', label: 'Declined' },
+                ]}
+              />
+            </div>
+
+            <Input
+              label="Home / Permanent Address"
+              placeholder="e.g. 123 Main St, Barangay San Jose"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+            />
+          </form>
+        </Modal>
+      )}
+
+      {/* VIEW MEMBER PROFILE MODAL */}
+      {viewingMember && (
+        <Modal
+          isOpen={Boolean(viewingMember)}
+          onClose={() => setViewingMember(null)}
+          title="Member Profile Details"
+          subtitle={`ID: ${viewingMember.id}`}
+          footer={
+            <Button variant="secondary" onClick={() => setViewingMember(null)}>
+              Close
+            </Button>
+          }
+        >
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div className="w-12 h-12 rounded-xl bg-teal-700 text-white flex items-center justify-center font-black text-lg shrink-0">
+                {viewingMember.full_name.charAt(0)}
+              </div>
+              <div className="flex-1">
+                <h4 className="text-base font-black text-slate-900 dark:text-slate-100">
+                  {viewingMember.full_name}
+                </h4>
+                <div className="flex flex-wrap items-center gap-2 mt-1">
+                  <Badge variant={viewingMember.role === 'admin' ? 'danger' : viewingMember.role === 'doctor' ? 'purple' : viewingMember.role === 'nurse' ? 'success' : 'info'}>
+                    Role: {viewingMember.role.toUpperCase()}
+                  </Badge>
+                  <Badge variant={viewingMember.account_status === 'active' ? 'success' : 'warning'}>
+                    Status: {viewingMember.account_status?.replace('_', ' ').toUpperCase()}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <p className="font-extrabold uppercase text-slate-500 flex items-center gap-1.5">
+                  <IdCard className="w-3.5 h-3.5 text-teal-600" /> ID / License
+                </p>
+                <p className="font-bold text-slate-900 dark:text-slate-100">
+                  {viewingMember.professional_license_no || viewingMember.school_id_number || 'N/A'}
+                </p>
+              </div>
+
+              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <p className="font-extrabold uppercase text-slate-500 flex items-center gap-1.5">
+                  <Building className="w-3.5 h-3.5 text-teal-600" /> Dept / Course
+                </p>
+                <p className="font-bold text-slate-900 dark:text-slate-100">
+                  {viewingMember.department_or_course || 'N/A'}
+                </p>
+              </div>
+
+              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <p className="font-extrabold uppercase text-slate-500 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-teal-600" /> Contact Number
+                </p>
+                <p className="font-bold text-slate-900 dark:text-slate-100">
+                  {viewingMember.contact_number || 'N/A'}
+                </p>
+              </div>
+
+              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <p className="font-extrabold uppercase text-slate-500 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-teal-600" /> Registered Date
+                </p>
+                <p className="font-bold text-slate-900 dark:text-slate-100">
+                  {formatDate(viewingMember.created_at)}
+                </p>
+              </div>
+            </div>
+
+            {viewingMember.address && (
+              <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1 text-xs">
+                <p className="font-extrabold uppercase text-slate-500 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-teal-600" /> Address
+                </p>
+                <p className="font-semibold text-slate-800 dark:text-slate-200">
+                  {viewingMember.address}
+                </p>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
+
+      {/* DELETE MEMBER CONFIRMATION MODAL */}
+      {deletingMember && (
+        <Modal
+          isOpen={Boolean(deletingMember)}
+          onClose={() => setDeletingMember(null)}
+          title="Delete Member Account"
+          subtitle={`Target: ${deletingMember.full_name} (${deletingMember.role.toUpperCase()})`}
+          footer={
+            <>
+              <Button variant="cancel" onClick={() => setDeletingMember(null)} disabled={Boolean(actionLoadingId)}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                isLoading={actionLoadingId === deletingMember.id}
+                onClick={handleConfirmDeleteMember}
+                icon={<Trash2 className="w-4 h-4" />}
+              >
+                Confirm Delete
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-3 text-sm font-medium">
+            <p className="text-slate-700 dark:text-slate-300">
+              Are you sure you want to permanently delete <strong className="text-slate-900 dark:text-slate-100">{deletingMember.full_name}</strong>'s account profile?
+            </p>
+            <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-600 dark:text-rose-400 font-bold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>⚠️ Warning: This operation will permanently remove the profile record from the directory.</span>
+            </div>
+          </div>
+        </Modal>
       )}
 
       {/* Staff Application Rejection Modal */}

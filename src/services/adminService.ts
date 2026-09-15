@@ -155,4 +155,69 @@ export const adminService = {
 
     return data as Profile;
   },
+
+  /**
+   * Creates a new member profile (Patient, Doctor, Nurse, Admin).
+   */
+  async createMember(payload: Partial<Profile>): Promise<Profile> {
+    const newId = payload.id || crypto.randomUUID();
+    const profileData = {
+      id: newId,
+      full_name: payload.full_name || 'New Member',
+      role: payload.role || 'client',
+      patient_type: payload.patient_type || 'external_client',
+      account_status: payload.account_status || 'active',
+      school_id_number: payload.school_id_number || null,
+      department_or_course: payload.department_or_course || null,
+      contact_number: payload.contact_number || null,
+      address: payload.address || null,
+      professional_license_no: payload.professional_license_no || null,
+    };
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert(profileData)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data as Profile;
+  },
+
+  /**
+   * Updates an existing member's profile details.
+   */
+  async updateMember(memberId: string, payload: Partial<Profile>): Promise<Profile> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        full_name: payload.full_name,
+        role: payload.role,
+        patient_type: payload.patient_type,
+        account_status: payload.account_status,
+        school_id_number: payload.school_id_number || null,
+        department_or_course: payload.department_or_course || null,
+        contact_number: payload.contact_number || null,
+        address: payload.address || null,
+        professional_license_no: payload.professional_license_no || null,
+      })
+      .eq('id', memberId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data as Profile;
+  },
+
+  /**
+   * Permanently deletes a member from the profiles directory.
+   */
+  async deleteMember(memberId: string): Promise<void> {
+    const { error } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', memberId);
+
+    if (error) throw error;
+  },
 };
