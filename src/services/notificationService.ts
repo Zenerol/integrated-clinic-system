@@ -11,7 +11,7 @@ export const notificationService = {
       .order('created_at', { ascending: false });
 
     if (userId && userRole) {
-      query = query.or(`recipient_id.eq.${userId},target_role.eq.${userRole},and(recipient_id.is.null,target_role.is.null)`);
+      query = query.or(`recipient_id.eq.${userId},target_role.eq.${userRole},target_role.is.null`);
     } else if (userId) {
       query = query.or(`recipient_id.eq.${userId},recipient_id.is.null`);
     } else if (userRole) {
@@ -83,11 +83,20 @@ export const notificationService = {
         .select()
         .single();
       if (retryError) throw retryError;
-      return retryData;
-    }
     return data;
   },
 
+  async createNotification(payload: {
+    recipient_id?: string | null;
+    target_role?: UserRole | null;
+    title: string;
+    message: string;
+    type?: NotificationType;
+    is_critical?: boolean;
+    action_url?: string | null;
+  }) {
+    return this.sendNotification(payload);
+  },
   subscribeToNotifications(onNotificationReceived: (notification: NotificationRow) => void) {
     return supabase
       .channel('clinic_notifications_realtime')

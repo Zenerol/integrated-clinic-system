@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
+import { notificationService } from '../../services/notificationService';
 import { getPasswordStrength, passwordSchema, staffRegistrationSchema } from '../../utils/validationSchemas';
 import { sanitizeInput } from '../../utils/security';
 import { Mail, Lock, User, Stethoscope, IdCard, CheckCircle2, AlertCircle, ShieldCheck, ArrowRight } from 'lucide-react';
@@ -59,6 +60,20 @@ export const StaffRegisterPage: React.FC = () => {
     if (error) {
       setErrorMessage(error.message || 'Staff registration failed.');
     } else {
+      // Dispatch admin notification for pending staff verification
+      try {
+        await notificationService.sendNotification({
+          target_role: 'admin',
+          title: `New Staff Approval Needed (${role.toUpperCase()})`,
+          message: `${sanitizeInput(fullName)} applied for ${role === 'doctor' ? 'Medical Doctor (MD)' : 'Clinical Nurse (RN)'} account activation. PRC License: ${sanitizeInput(professionalLicenseNo)}.`,
+          type: 'warning',
+          is_critical: true,
+          action_url: '/admin/staff-approvals',
+        });
+      } catch (notifErr) {
+        console.warn('Failed to send admin notification on staff signup:', notifErr);
+      }
+
       setSubmittedSuccess(true);
     }
   };
