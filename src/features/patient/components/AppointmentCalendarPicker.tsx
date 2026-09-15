@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Clock, Calendar as CalendarIcon, CheckCircle, Ban } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, Calendar as CalendarIcon, CheckCircle, Ban, Info } from 'lucide-react';
 
 interface AppointmentCalendarPickerProps {
   selectedDate: Date | null;
@@ -78,8 +78,8 @@ export const AppointmentCalendarPicker: React.FC<AppointmentCalendarPickerProps>
         </span>
       </div>
 
-      {/* Calendar Header & Controls */}
-      <div className="bg-slate-50 dark:bg-slate-900/70 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800">
+      {/* Monthly Calendar Panel Container */}
+      <div className="bg-slate-50/60 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 shadow-xs">
         <div className="flex items-center justify-between mb-3 px-1">
           <h4 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <CalendarIcon className="w-4 h-4 text-teal-700 dark:text-teal-400" />
@@ -106,7 +106,7 @@ export const AppointmentCalendarPicker: React.FC<AppointmentCalendarPickerProps>
         </div>
 
         {/* Days of Week Header */}
-        <div className="grid grid-cols-7 gap-1 text-center mb-1 text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+        <div className="grid grid-cols-7 gap-1 text-center mb-2 text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
           {daysOfWeek.map((day, idx) => (
             <div key={day} className={idx >= 5 ? 'text-rose-600 dark:text-rose-400' : ''}>
               {day}
@@ -141,12 +141,12 @@ export const AppointmentCalendarPicker: React.FC<AppointmentCalendarPickerProps>
                 onClick={() => {
                   if (!isDisabled) onSelectDate(dateObj);
                 }}
-                className={`h-9 w-full rounded-xl transition duration-150 flex flex-col items-center justify-center font-extrabold ${
+                className={`h-9 w-full rounded-lg transition-all flex flex-col items-center justify-center ${
                   isDisabled
-                    ? 'opacity-30 cursor-not-allowed pointer-events-none bg-slate-200/50 dark:bg-slate-800/40 text-slate-400 dark:text-slate-600'
+                    ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed font-medium'
                     : isSelected
-                    ? 'bg-teal-700 text-white font-black shadow-md border-2 border-teal-800 scale-105'
-                    : 'bg-white dark:bg-slate-800/80 hover:bg-teal-50 dark:hover:bg-teal-900/40 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 cursor-pointer'
+                    ? 'bg-teal-600 text-white font-bold border-teal-600 shadow-sm ring-2 ring-teal-600/30'
+                    : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-semibold border border-slate-200/90 dark:border-slate-700 rounded-lg shadow-xs hover:border-teal-500 hover:bg-teal-50/50 transition-all cursor-pointer'
                 }`}
                 title={
                   isWeekend
@@ -191,12 +191,12 @@ export const AppointmentCalendarPicker: React.FC<AppointmentCalendarPickerProps>
                   onClick={() => {
                     if (!isBooked) onSelectTime(slot);
                   }}
-                  className={`p-2.5 rounded-xl text-xs transition duration-150 flex flex-col items-center justify-center gap-1 ${
+                  className={`p-2.5 rounded-lg text-xs transition-all flex flex-col items-center justify-center gap-1 ${
                     isBooked
-                      ? 'opacity-35 cursor-not-allowed pointer-events-none bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 line-through'
+                      ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed font-medium bg-slate-100/50 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-800 line-through'
                       : isSelected
-                      ? 'bg-teal-700 text-white font-black border-2 border-teal-800 shadow-md ring-2 ring-teal-600/50 scale-105'
-                      : 'bg-white dark:bg-slate-900 hover:bg-teal-50 dark:hover:bg-teal-900/30 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 font-extrabold cursor-pointer'
+                      ? 'bg-teal-600 text-white font-bold border-teal-600 shadow-sm ring-2 ring-teal-600/30'
+                      : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-semibold border border-slate-200/90 dark:border-slate-700 rounded-lg shadow-xs hover:border-teal-500 hover:bg-teal-50/50 transition-all cursor-pointer'
                   }`}
                 >
                   <span className="font-extrabold">{slot}</span>
@@ -221,8 +221,9 @@ export const AppointmentCalendarPicker: React.FC<AppointmentCalendarPickerProps>
           </div>
         </div>
       ) : (
-        <div className="p-4 text-center bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 font-semibold">
-          👆 Please click an available weekday on the calendar above to view open time slots.
+        <div className="bg-teal-50/80 dark:bg-teal-500/10 border border-teal-200/70 dark:border-teal-500/30 text-teal-900 dark:text-teal-200 rounded-lg p-3 text-xs font-medium flex items-center gap-2">
+          <Info className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+          <span>Please click an available weekday on the calendar above to view open time slots.</span>
         </div>
       )}
     </div>

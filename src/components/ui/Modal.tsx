@@ -38,12 +38,12 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/70 dark:bg-slate-950/85 animate-fade-in">
+    <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-900/25 backdrop-blur-sm dark:bg-black/50 animate-fade-in">
       <div
-        className={`w-full ${sizeMap[size]} bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl shadow-slate-300/40 dark:shadow-black/75 overflow-hidden flex flex-col max-h-[90vh]`}
+        className={`w-full ${sizeMap[size]} bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]`}
       >
         {/* Modal Header */}
-        <div className="flex items-start justify-between p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50">
+        <div className="flex items-start justify-between p-5 pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50">
           <div>
             <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">{title}</h3>
             {subtitle && <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">{subtitle}</p>}
