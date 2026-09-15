@@ -5,48 +5,105 @@ import { adminService } from '../../services/adminService';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
+import { Input } from '../../components/ui/Input';
+import { Select } from '../../components/ui/Select';
 import { formatDate } from '../../utils/formatters';
 import { maskIdNumber } from '../../utils/security';
 import { rejectionNoteSchema } from '../../utils/validationSchemas';
-import { ShieldCheck, CheckCircle2, XCircle, Clock, User, IdCard, Mail, AlertCircle, RefreshCw, Filter } from 'lucide-react';
+import {
+  ShieldCheck,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  User,
+  Mail,
+  AlertCircle,
+  RefreshCw,
+  Filter,
+  Search,
+  Users,
+  UserCheck,
+  UserX,
+  Ban,
+  Stethoscope,
+  HeartPulse,
+} from 'lucide-react';
 
 export const AdminStaffApprovalsDashboard: React.FC = () => {
   const { profile: adminProfile } = useAuth();
-  const [pendingStaff, setPendingStaff] = useState<Profile[]>([]);
-  const [allStaff, setAllStaff] = useState<Profile[]>([]);
-  const [activeTab, setActiveTab] = useState<'pending' | 'all'>('pending');
+
+  // State
+  const [activeTab, setActiveTab] = useState<'approvals' | 'members'>('approvals');
+  const [approvalsFilter, setApprovalsFilter] = useState<'pending' | 'staff_all'>('pending');
+
+  const [allMembers, setAllMembers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+
+  // Member Management Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   // Rejection modal state
   const [rejectingStaff, setRejectingStaff] = useState<Profile | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [rejectionError, setRejectionError] = useState<string | null>(null);
 
-  const loadStaffData = async () => {
+  // Member Action modal state (Suspend / Activate)
+  const [actionTargetMember, setActionTargetMember] = useState<{
+    member: Profile;
+    targetStatus: 'active' | 'suspended';
+  } | null>(null);
+
+  const loadData = async () => {
     setLoading(true);
     try {
-      const pending = await adminService.getPendingStaffApplications();
-      const all = await adminService.getAllStaffProfiles();
-      setPendingStaff(pending);
-      setAllStaff(all);
+      const members = await adminService.getAllMembers();
+      setAllMembers(members);
     } catch (err) {
-      console.error('Failed to load staff applications:', err);
+      console.error('Failed to load clinic members data:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadStaffData();
+    loadData();
   }, []);
 
+  // Filtered lists
+  const pendingStaff = allMembers.filter(
+    (m) => (m.role === 'doctor' || m.role === 'nurse') && m.account_status === 'pending_approval'
+  );
+
+  const allStaff = allMembers.filter(
+    (m) => m.role === 'doctor' || m.role === 'nurse' || m.role === 'admin'
+  );
+
+  const staffDisplayed = approvalsFilter === 'pending' ? pendingStaff : allStaff;
+
+  // Search & Filter for All Members Tab
+  const filteredMembers = allMembers.filter((m) => {
+    const matchesSearch =
+      m.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      m.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (m.school_id_number && m.school_id_number.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (m.professional_license_no && m.professional_license_no.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesRole = roleFilter === 'all' || m.role === roleFilter;
+    const matchesStatus = statusFilter === 'all' || m.account_status === statusFilter;
+
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+
+  // Action Handlers
   const handleApprove = async (staff: Profile) => {
     if (!adminProfile) return;
     setActionLoadingId(staff.id);
     try {
       await adminService.approveStaffApplication(staff.id, adminProfile.id);
-      await loadStaffData();
+      await loadData();
     } catch (err) {
       console.error('Failed to approve staff:', err);
     } finally {
@@ -76,7 +133,7 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
     try {
       await adminService.rejectStaffApplication(rejectingStaff.id, adminProfile.id, rejectionReason.trim());
       setRejectingStaff(null);
-      await loadStaffData();
+      await loadData();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to reject application';
       setRejectionError(msg);
@@ -85,165 +142,471 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
     }
   };
 
-  const displayedList = activeTab === 'pending' ? pendingStaff : allStaff;
+  const handleConfirmStatusChange = async () => {
+    if (!actionTargetMember || !adminProfile) return;
+    const { member, targetStatus } = actionTargetMember;
+    setActionLoadingId(member.id);
+
+    try {
+      await adminService.updateMemberStatus(member.id, targetStatus, adminProfile.id);
+      setActionTargetMember(null);
+      await loadData();
+    } catch (err) {
+      console.error('Failed to update member status:', err);
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  // Metrics
+  const totalCount = allMembers.length;
+  const pendingCount = pendingStaff.length;
+  const doctorCount = allMembers.filter((m) => m.role === 'doctor' && m.account_status === 'active').length;
+  const nurseCount = allMembers.filter((m) => m.role === 'nurse' && m.account_status === 'active').length;
+  const patientCount = allMembers.filter((m) => m.role === 'client').length;
 
   return (
     <div className="space-y-6">
       {/* Dashboard Top Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card p-6 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-sm transition-shadow duration-200">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-xl border border-teal-500/20">
-            <ShieldCheck className="w-6 h-6" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card p-6 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-700/60 shadow-sm hover:shadow-md transition-all duration-200">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-xl border border-teal-500/20 shadow-xs">
+            <ShieldCheck className="w-7 h-7" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-slate-900 dark:text-slate-100">Clinic Administration Panel</h1>
-            <p className="text-xs text-slate-600 dark:text-slate-400 font-semibold">
-              Medical Staff Credentials Verification & Approval Workspace
+            <h1 className="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+              Clinic Administration & Member Management
+            </h1>
+            <p className="text-xs text-slate-600 dark:text-slate-400 font-semibold mt-0.5">
+              Medical Credentials Verification, Role Control, & Account Status Workspaces
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={loadStaffData} isLoading={loading} icon={<RefreshCw className="w-4 h-4" />}>
-            Refresh Table
+          <Button variant="secondary" size="sm" onClick={loadData} isLoading={loading} icon={<RefreshCw className="w-4 h-4" />}>
+            Refresh Directory
           </Button>
         </div>
       </div>
 
-      {/* Segmented Filter Tab Bar */}
-      <div className="flex bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800 max-w-md shadow-xs">
+      {/* Analytics & Metrics Cards (Enhanced Translucent Micro-Borders & Soft Ambient Shadows) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Members */}
+        <div className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-700/60 bg-white/90 dark:bg-slate-900/90 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Members</p>
+            <p className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-1">{totalCount}</p>
+            <p className="text-[10px] text-teal-600 dark:text-teal-400 font-bold mt-1">{patientCount} Registered Patients</p>
+          </div>
+          <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+            <Users className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* Pending Approvals */}
+        <div className="p-4 rounded-xl border border-amber-200/80 dark:border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-amber-800 dark:text-amber-400">Pending Staff</p>
+            <p className="text-2xl font-black text-amber-900 dark:text-amber-300 mt-1">{pendingCount}</p>
+            <p className="text-[10px] text-amber-700 dark:text-amber-400 font-bold mt-1">Awaiting Credential Review</p>
+          </div>
+          <div className="p-3 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+            <Clock className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* Active Doctors */}
+        <div className="p-4 rounded-xl border border-purple-200/80 dark:border-purple-500/30 bg-purple-500/10 dark:bg-purple-500/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-purple-800 dark:text-purple-400">Active Doctors</p>
+            <p className="text-2xl font-black text-purple-900 dark:text-purple-300 mt-1">{doctorCount}</p>
+            <p className="text-[10px] text-purple-700 dark:text-purple-400 font-bold mt-1">Licensed Physicians</p>
+          </div>
+          <div className="p-3 rounded-xl bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30">
+            <Stethoscope className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* Active Nurses */}
+        <div className="p-4 rounded-xl border border-emerald-200/80 dark:border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-500/5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">Active Nurses</p>
+            <p className="text-2xl font-black text-emerald-900 dark:text-emerald-300 mt-1">{nurseCount}</p>
+            <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold mt-1">Clinical Intake RNs</p>
+          </div>
+          <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+            <HeartPulse className="w-6 h-6" />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Mode Navigation Tabs (Approvals vs Member Directory) */}
+      <div className="flex bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700/60 max-w-lg shadow-xs">
         <button
           type="button"
-          onClick={() => setActiveTab('pending')}
-          className={`flex-1 py-2 text-xs font-black rounded-lg transition cursor-pointer flex items-center justify-center gap-2 ${
-            activeTab === 'pending'
+          onClick={() => setActiveTab('approvals')}
+          className={`flex-1 py-2.5 text-xs font-black rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${
+            activeTab === 'approvals'
               ? 'bg-amber-600 text-white shadow-xs'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
           }`}
         >
-          <Clock className="w-3.5 h-3.5" />
-          Pending Approvals ({pendingStaff.length})
+          <ShieldCheck className="w-4 h-4" />
+          Staff Approvals ({pendingCount})
         </button>
 
         <button
           type="button"
-          onClick={() => setActiveTab('all')}
-          className={`flex-1 py-2 text-xs font-black rounded-lg transition cursor-pointer flex items-center justify-center gap-2 ${
-            activeTab === 'all'
+          onClick={() => setActiveTab('members')}
+          className={`flex-1 py-2.5 text-xs font-black rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${
+            activeTab === 'members'
               ? 'bg-teal-700 text-white shadow-xs'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
           }`}
         >
-          <Filter className="w-3.5 h-3.5" />
-          All Medical Staff ({allStaff.length})
+          <Users className="w-4 h-4" />
+          Manage All Members ({totalCount})
         </button>
       </div>
 
-      {/* Staff Applications Table */}
-      <div className="glass-card rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/80 overflow-hidden shadow-xs hover:shadow-sm transition-shadow duration-200">
-        {loading ? (
-          <div className="p-12 text-center text-slate-500 dark:text-slate-400 text-sm font-semibold">
-            Loading staff verification records...
+      {/* TAB 1: STAFF APPROVALS WORKSPACE */}
+      {activeTab === 'approvals' && (
+        <div className="space-y-4">
+          {/* Sub-Filter Bar */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setApprovalsFilter('pending')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-extrabold border transition cursor-pointer ${
+                approvalsFilter === 'pending'
+                  ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-500/40'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800'
+              }`}
+            >
+              Pending Applications ({pendingStaff.length})
+            </button>
+            <button
+              onClick={() => setApprovalsFilter('staff_all')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-extrabold border transition cursor-pointer ${
+                approvalsFilter === 'staff_all'
+                  ? 'bg-teal-50 dark:bg-teal-500/20 text-teal-900 dark:text-teal-300 border-teal-300 dark:border-teal-500/40'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800'
+              }`}
+            >
+              All Medical Staff Roster ({allStaff.length})
+            </button>
           </div>
-        ) : displayedList.length === 0 ? (
-          <div className="p-12 text-center space-y-2">
-            <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">No Pending Applications</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              All submitted doctor and nurse credentials have been processed by administration.
-            </p>
+
+          {/* Table Container */}
+          <div className="glass-card rounded-2xl border border-slate-200/80 dark:border-slate-700/60 bg-white/90 dark:bg-slate-900/90 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
+            {loading ? (
+              <div className="p-12 text-center text-slate-500 dark:text-slate-400 text-sm font-semibold">
+                Loading staff verification records...
+              </div>
+            ) : staffDisplayed.length === 0 ? (
+              <div className="p-12 text-center space-y-2">
+                <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">No Applications to Display</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium max-w-sm mx-auto">
+                  All submitted doctor and nurse credentials have been processed by clinic administration.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <th className="py-3.5 px-4">Applicant Name</th>
+                      <th className="py-3.5 px-4">Role</th>
+                      <th className="py-3.5 px-4">PRC License No</th>
+                      <th className="py-3.5 px-4">Application Date</th>
+                      <th className="py-3.5 px-4">Status</th>
+                      <th className="py-3.5 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200">
+                    {staffDisplayed.map((staff) => (
+                      <tr key={staff.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center font-black text-xs shrink-0 border border-teal-500/20">
+                              {staff.full_name.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-900 dark:text-slate-100">{staff.full_name}</p>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 font-normal">
+                                <Mail className="w-3 h-3" /> {staff.id.slice(0, 8)}...
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="py-3.5 px-4">
+                          <Badge variant={staff.role === 'doctor' ? 'purple' : 'success'}>
+                            {staff.role === 'doctor' ? 'Medical Doctor (MD)' : 'Clinical Nurse (RN)'}
+                          </Badge>
+                        </td>
+
+                        <td className="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-slate-100">
+                          {staff.professional_license_no || 'N/A'}
+                        </td>
+
+                        <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">
+                          {formatDate(staff.created_at)}
+                        </td>
+
+                        <td className="py-3.5 px-4">
+                          {staff.account_status === 'active' && <Badge variant="success">Active / Approved</Badge>}
+                          {staff.account_status === 'pending_approval' && <Badge variant="warning">Pending Verification</Badge>}
+                          {staff.account_status === 'rejected' && <Badge variant="danger">Declined</Badge>}
+                          {staff.account_status === 'suspended' && <Badge variant="danger">Suspended</Badge>}
+                        </td>
+
+                        <td className="py-3.5 px-4 text-right">
+                          {staff.account_status === 'pending_approval' ? (
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="success"
+                                size="sm"
+                                isLoading={actionLoadingId === staff.id}
+                                onClick={() => handleApprove(staff)}
+                                icon={<CheckCircle2 className="w-3.5 h-3.5" />}
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                variant="danger"
+                                size="sm"
+                                disabled={actionLoadingId === staff.id}
+                                onClick={() => handleOpenRejectModal(staff)}
+                                icon={<XCircle className="w-3.5 h-3.5" />}
+                              >
+                                Decline
+                              </Button>
+                            </div>
+                          ) : (
+                            <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">No Pending Action</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200/75 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50 text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  <th className="py-3.5 px-4">Applicant Name</th>
-                  <th className="py-3.5 px-4">Role</th>
-                  <th className="py-3.5 px-4">PRC License No</th>
-                  <th className="py-3.5 px-4">Application Date</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200">
-                {displayedList.map((staff) => (
-                  <tr key={staff.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition">
-                    {/* Name & Email */}
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center font-black text-xs shrink-0">
-                          {staff.full_name.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 dark:text-slate-100">{staff.full_name}</p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 font-normal">
-                            <Mail className="w-3 h-3" /> {staff.id.slice(0, 8)}...
-                          </p>
-                        </div>
-                      </div>
-                    </td>
+        </div>
+      )}
 
-                    {/* Role */}
-                    <td className="py-3.5 px-4">
-                      <Badge variant={staff.role === 'doctor' ? 'info' : 'success'}>
-                        {staff.role === 'doctor' ? 'Medical Doctor (MD)' : 'Clinical Nurse (RN)'}
-                      </Badge>
-                    </td>
+      {/* TAB 2: MANAGE ALL MEMBERS */}
+      {activeTab === 'members' && (
+        <div className="space-y-4">
+          {/* Controls Header: Search & Filters */}
+          <div className="p-4 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-700/60 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+            {/* Search Input */}
+            <div className="flex-1 relative">
+              <Input
+                placeholder="Search member by full name, ID number, or license..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                icon={<Search className="w-4 h-4 text-slate-400" />}
+              />
+            </div>
 
-                    {/* PRC License */}
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-slate-100">
-                      {staff.professional_license_no || 'N/A'}
-                    </td>
+            {/* Filter Dropdowns */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="w-40">
+                <Select
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                  options={[
+                    { value: 'all', label: 'All Roles' },
+                    { value: 'client', label: 'Patients / Clients' },
+                    { value: 'doctor', label: 'Doctors' },
+                    { value: 'nurse', label: 'Nurses' },
+                    { value: 'admin', label: 'Admins' },
+                  ]}
+                />
+              </div>
 
-                    {/* Application Date */}
-                    <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">
-                      {formatDate(staff.created_at)}
-                    </td>
+              <div className="w-40">
+                <Select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  options={[
+                    { value: 'all', label: 'All Statuses' },
+                    { value: 'active', label: 'Active' },
+                    { value: 'pending_approval', label: 'Pending' },
+                    { value: 'suspended', label: 'Suspended' },
+                    { value: 'rejected', label: 'Declined' },
+                  ]}
+                />
+              </div>
+            </div>
+          </div>
 
-                    {/* Status Badge */}
-                    <td className="py-3.5 px-4">
-                      {staff.account_status === 'active' && <Badge variant="success">Active / Approved</Badge>}
-                      {staff.account_status === 'pending_approval' && <Badge variant="warning">Pending Verification</Badge>}
-                      {staff.account_status === 'rejected' && <Badge variant="danger">Declined</Badge>}
-                    </td>
+          {/* Members Table */}
+          <div className="glass-card rounded-2xl border border-slate-200/80 dark:border-slate-700/60 bg-white/90 dark:bg-slate-900/90 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
+            {loading ? (
+              <div className="p-12 text-center text-slate-500 dark:text-slate-400 text-sm font-semibold">
+                Loading member directory...
+              </div>
+            ) : filteredMembers.length === 0 ? (
+              <div className="p-12 text-center space-y-2">
+                <Users className="w-10 h-10 text-slate-400 dark:text-slate-600 mx-auto" />
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">No Members Match Search Criteria</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  Try adjusting search keywords or resetting role filters.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <th className="py-3.5 px-4">Member Name</th>
+                      <th className="py-3.5 px-4">Role / Category</th>
+                      <th className="py-3.5 px-4">ID / License No</th>
+                      <th className="py-3.5 px-4">Joined Date</th>
+                      <th className="py-3.5 px-4">Account Status</th>
+                      <th className="py-3.5 px-4 text-right">Account Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200">
+                    {filteredMembers.map((member) => (
+                      <tr key={member.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                        {/* Name & ID */}
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-black text-xs shrink-0 border border-slate-300 dark:border-slate-700">
+                              {member.full_name.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-900 dark:text-slate-100">{member.full_name}</p>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 font-normal">
+                                <Mail className="w-3 h-3" /> {member.id.slice(0, 8)}...
+                              </p>
+                            </div>
+                          </div>
+                        </td>
 
-                    {/* Actions */}
-                    <td className="py-3.5 px-4 text-right">
-                      {staff.account_status === 'pending_approval' ? (
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="success"
-                            size="sm"
-                            isLoading={actionLoadingId === staff.id}
-                            onClick={() => handleApprove(staff)}
-                            icon={<CheckCircle2 className="w-3.5 h-3.5" />}
+                        {/* Role */}
+                        <td className="py-3.5 px-4">
+                          <Badge
+                            variant={
+                              member.role === 'admin'
+                                ? 'danger'
+                                : member.role === 'doctor'
+                                ? 'purple'
+                                : member.role === 'nurse'
+                                ? 'success'
+                                : 'info'
+                            }
                           >
-                            Approve
-                          </Button>
-                          <Button
-                            variant="danger"
-                            size="sm"
-                            disabled={actionLoadingId === staff.id}
-                            onClick={() => handleOpenRejectModal(staff)}
-                            icon={<XCircle className="w-3.5 h-3.5" />}
-                          >
-                            Decline
-                          </Button>
-                        </div>
-                      ) : (
-                        <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">No Actions</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                            {member.role === 'admin'
+                              ? 'System Admin'
+                              : member.role === 'doctor'
+                              ? 'Doctor (MD)'
+                              : member.role === 'nurse'
+                              ? 'Nurse (RN)'
+                              : member.patient_type === 'external_client'
+                              ? 'External Outpatient'
+                              : member.patient_type === 'faculty_staff'
+                              ? 'Faculty / Staff'
+                              : 'Student Patient'}
+                          </Badge>
+                        </td>
 
-      {/* Rejection Modal */}
+                        {/* ID or License */}
+                        <td className="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-slate-100">
+                          {member.role === 'doctor' || member.role === 'nurse'
+                            ? member.professional_license_no || 'N/A'
+                            : member.school_id_number
+                            ? maskIdNumber(member.school_id_number)
+                            : 'N/A'}
+                        </td>
+
+                        {/* Created At */}
+                        <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">
+                          {formatDate(member.created_at)}
+                        </td>
+
+                        {/* Status */}
+                        <td className="py-3.5 px-4">
+                          {member.account_status === 'active' && <Badge variant="success">Active</Badge>}
+                          {member.account_status === 'pending_approval' && <Badge variant="warning">Pending</Badge>}
+                          {member.account_status === 'suspended' && <Badge variant="danger">Suspended</Badge>}
+                          {member.account_status === 'rejected' && <Badge variant="danger">Declined</Badge>}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-3.5 px-4 text-right">
+                          {member.id === adminProfile?.id ? (
+                            <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">Current Admin</span>
+                          ) : (
+                            <div className="flex items-center justify-end gap-2">
+                              {member.account_status === 'active' && (
+                                <Button
+                                  variant="danger"
+                                  size="sm"
+                                  disabled={actionLoadingId === member.id}
+                                  onClick={() => setActionTargetMember({ member, targetStatus: 'suspended' })}
+                                  icon={<Ban className="w-3.5 h-3.5" />}
+                                >
+                                  Suspend
+                                </Button>
+                              )}
+
+                              {member.account_status === 'suspended' && (
+                                <Button
+                                  variant="success"
+                                  size="sm"
+                                  disabled={actionLoadingId === member.id}
+                                  onClick={() => setActionTargetMember({ member, targetStatus: 'active' })}
+                                  icon={<UserCheck className="w-3.5 h-3.5" />}
+                                >
+                                  Re-Activate
+                                </Button>
+                              )}
+
+                              {member.account_status === 'pending_approval' && (
+                                <Button
+                                  variant="primary"
+                                  size="sm"
+                                  onClick={() => {
+                                    setActiveTab('approvals');
+                                    setApprovalsFilter('pending');
+                                  }}
+                                >
+                                  Review Application
+                                </Button>
+                              )}
+
+                              {member.account_status === 'rejected' && (
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  disabled={actionLoadingId === member.id}
+                                  onClick={() => setActionTargetMember({ member, targetStatus: 'active' })}
+                                  icon={<UserCheck className="w-3.5 h-3.5" />}
+                                >
+                                  Activate
+                                </Button>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Staff Application Rejection Modal */}
       {rejectingStaff && (
         <Modal
           isOpen={Boolean(rejectingStaff)}
@@ -292,6 +655,45 @@ export const AdminStaffApprovalsDashboard: React.FC = () => {
               />
             </div>
           </form>
+        </Modal>
+      )}
+
+      {/* Member Account Status Confirmation Modal (Suspend / Re-Activate) */}
+      {actionTargetMember && (
+        <Modal
+          isOpen={Boolean(actionTargetMember)}
+          onClose={() => setActionTargetMember(null)}
+          title={actionTargetMember.targetStatus === 'suspended' ? 'Suspend Member Account' : 'Re-Activate Member Account'}
+          subtitle={`Member: ${actionTargetMember.member.full_name} (${actionTargetMember.member.role.toUpperCase()})`}
+          footer={
+            <>
+              <Button variant="cancel" onClick={() => setActionTargetMember(null)} disabled={Boolean(actionLoadingId)}>
+                Cancel
+              </Button>
+              <Button
+                variant={actionTargetMember.targetStatus === 'suspended' ? 'danger' : 'success'}
+                isLoading={actionLoadingId === actionTargetMember.member.id}
+                onClick={handleConfirmStatusChange}
+                icon={actionTargetMember.targetStatus === 'suspended' ? <Ban className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+              >
+                Confirm {actionTargetMember.targetStatus === 'suspended' ? 'Suspend' : 'Activate'}
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-3 text-sm font-medium">
+            <p className="text-slate-700 dark:text-slate-300">
+              Are you sure you want to set <strong className="text-slate-900 dark:text-slate-100">{actionTargetMember.member.full_name}</strong>'s account status to{' '}
+              <strong className={actionTargetMember.targetStatus === 'suspended' ? 'text-rose-600 dark:text-rose-400 uppercase' : 'text-emerald-600 dark:text-emerald-400 uppercase'}>
+                {actionTargetMember.targetStatus}
+              </strong>?
+            </p>
+            {actionTargetMember.targetStatus === 'suspended' && (
+              <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20 font-bold">
+                ⚠️ Suspended members will be blocked from accessing clinic services until reactivated by administration.
+              </p>
+            )}
+          </div>
         </Modal>
       )}
     </div>

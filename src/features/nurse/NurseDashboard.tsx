@@ -156,24 +156,27 @@ export const NurseDashboard: React.FC = () => {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card className="!p-4 bg-amber-500/10 dark:bg-amber-500/5 border border-amber-200/80 dark:border-amber-500/20 shadow-xs hover:shadow-sm transition-shadow duration-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-700 dark:text-slate-400 font-extrabold uppercase tracking-wide">Pending Requests</p>
-              <p className="text-2xl font-black text-amber-800 dark:text-amber-400 mt-1">{pendingAppointments.length}</p>
-            </div>
-            <Clock className="w-8 h-8 text-amber-700/50 dark:text-amber-400/40" />
+        <div className="p-4.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/5 border border-amber-200/80 dark:border-amber-500/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] text-amber-900 dark:text-amber-300 font-extrabold uppercase tracking-wider">Pending Requests</p>
+            <p className="text-2xl font-black text-amber-950 dark:text-amber-200 mt-1">{pendingAppointments.length}</p>
+            <p className="text-[10px] text-amber-700/80 dark:text-amber-400/80 font-bold mt-1">Awaiting Nurse Verification</p>
           </div>
-        </Card>
-        <Card className="!p-4 bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-200/80 dark:border-emerald-500/20 shadow-xs hover:shadow-sm transition-shadow duration-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-700 dark:text-slate-400 font-extrabold uppercase tracking-wide">Patients In Queue</p>
-              <p className="text-2xl font-black text-emerald-800 dark:text-emerald-400 mt-1">{activeQueue.length}</p>
-            </div>
-            <Users className="w-8 h-8 text-emerald-700/50 dark:text-emerald-400/40" />
+          <div className="p-3 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 shadow-xs">
+            <Clock className="w-6 h-6" />
           </div>
-        </Card>
+        </div>
+
+        <div className="p-4.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-200/80 dark:border-emerald-500/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] text-emerald-900 dark:text-emerald-300 font-extrabold uppercase tracking-wider">Patients In Queue</p>
+            <p className="text-2xl font-black text-emerald-950 dark:text-emerald-200 mt-1">{activeQueue.length}</p>
+            <p className="text-[10px] text-emerald-700/80 dark:text-emerald-400/80 font-bold mt-1">On-Site Triage & Intake Desk</p>
+          </div>
+          <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shadow-xs">
+            <Users className="w-6 h-6" />
+          </div>
+        </div>
       </div>
 
       {/* Main Tabs & List Content */}

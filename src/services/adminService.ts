@@ -99,4 +99,60 @@ export const adminService = {
 
     return data as Profile;
   },
+
+  /**
+   * Fetches all registered system profiles (Patients, Doctors, Nurses, Admins).
+   */
+  async getAllMembers(): Promise<Profile[]> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return (data || []) as Profile[];
+  },
+
+  /**
+   * Updates any member's account status (active, suspended, pending_approval, rejected).
+   */
+  async updateMemberStatus(
+    memberId: string,
+    accountStatus: 'active' | 'suspended' | 'pending_approval' | 'rejected',
+    adminId: string,
+    rejectionReason?: string
+  ): Promise<Profile> {
+    const updatePayload: Record<string, any> = {
+      account_status: accountStatus,
+      approved_by: adminId,
+      approved_at: new Date().toISOString(),
+    };
+
+    if (rejectionReason !== undefined) {
+      updatePayload.rejection_reason = rejectionReason;
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(updatePayload)
+      .eq('id', memberId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Send notification to member
+    try {
+      await notificationService.createNotification({
+        recipient_id: memberId,
+        title: `Account Status Updated: ${accountStatus.toUpperCase().replace('_', ' ')}`,
+        message: `Your clinic portal account status has been set to '${accountStatus.replace('_', ' ')}' by Clinic Administration.`,
+        type: accountStatus === 'active' ? 'success' : 'warning',
+      });
+    } catch (err) {
+      console.warn('Failed to send status update notification:', err);
+    }
+
+    return data as Profile;
+  },
 };

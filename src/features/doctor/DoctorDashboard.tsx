@@ -123,24 +123,27 @@ export const DoctorDashboard: React.FC = () => {
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card className="!p-4 bg-purple-500/10 dark:bg-purple-500/5 border border-purple-200/80 dark:border-purple-500/20 shadow-xs hover:shadow-sm transition-shadow duration-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-700 dark:text-slate-400 font-extrabold uppercase tracking-wide">Patients In Queue</p>
-              <p className="text-2xl font-black text-purple-900 dark:text-purple-300 mt-1">{doctorQueue.length}</p>
-            </div>
-            <Users className="w-8 h-8 text-purple-700/50 dark:text-purple-400/40" />
+        <div className="p-4.5 rounded-xl bg-purple-500/10 dark:bg-purple-500/5 border border-purple-200/80 dark:border-purple-500/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] text-purple-900 dark:text-purple-300 font-extrabold uppercase tracking-wider">Patients In Queue</p>
+            <p className="text-2xl font-black text-purple-950 dark:text-purple-200 mt-1">{doctorQueue.length}</p>
+            <p className="text-[10px] text-purple-700/80 dark:text-purple-400/80 font-bold mt-1">Ready for Doctor Assessment</p>
           </div>
-        </Card>
-        <Card className="!p-4 bg-teal-500/10 dark:bg-teal-500/5 border border-teal-200/80 dark:border-teal-500/20 shadow-xs hover:shadow-sm transition-shadow duration-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-700 dark:text-slate-400 font-extrabold uppercase tracking-wide">Status</p>
-              <p className="text-sm font-extrabold text-teal-900 dark:text-teal-300 mt-1">Active Encounter Desk</p>
-            </div>
-            <Clock className="w-8 h-8 text-teal-700/50 dark:text-teal-400/40" />
+          <div className="p-3 rounded-xl bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30 shadow-xs">
+            <Users className="w-6 h-6" />
           </div>
-        </Card>
+        </div>
+
+        <div className="p-4.5 rounded-xl bg-teal-500/10 dark:bg-teal-500/5 border border-teal-200/80 dark:border-teal-500/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] text-teal-900 dark:text-teal-300 font-extrabold uppercase tracking-wider">Clinical Station</p>
+            <p className="text-base font-extrabold text-teal-950 dark:text-teal-200 mt-1">Active Encounter Desk</p>
+            <p className="text-[10px] text-teal-700/80 dark:text-teal-400/80 font-bold mt-1">Real-time Triage Sync</p>
+          </div>
+          <div className="p-3 rounded-xl bg-teal-500/20 text-teal-700 dark:text-teal-300 border border-teal-500/30 shadow-xs">
+            <Clock className="w-6 h-6" />
+          </div>
+        </div>
       </div>
 
       {/* Queue Section */}

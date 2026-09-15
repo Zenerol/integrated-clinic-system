@@ -37,6 +37,7 @@ export const AppRoutes: React.FC = () => {
           <Route element={<RoleRoute allowedRoles={['admin']} />}>
             <Route path="/admin/*" element={<AdminStaffApprovalsDashboard />} />
             <Route path="/admin/staff-approvals" element={<AdminStaffApprovalsDashboard />} />
+            <Route path="/admin/members" element={<AdminStaffApprovalsDashboard />} />
           </Route>
 
           {/* Doctor Portal (Guarded: doctor) */}
