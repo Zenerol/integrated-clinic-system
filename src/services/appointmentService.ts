@@ -222,4 +222,8 @@ export const appointmentService = {
     if (error) throw error;
     return data;
   },
+
+  async moveToDoctor(appointmentId: string, doctorId?: string) {
+    return this.passToDoctor(appointmentId, doctorId);
+  },
 };

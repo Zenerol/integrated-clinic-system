@@ -125,19 +125,41 @@ export const NurseDashboard: React.FC = () => {
     patientId: string,
     vitals: VitalsFormPayload
   ) => {
+    const appointment = activeQueue.find((a) => a.id === appointmentId) || pendingAppointments.find((a) => a.id === appointmentId);
+    const patientName = appointment?.patient?.full_name || 'Patient';
+
     // 1. Save vitals
     await medicalRecordService.saveVitals(appointmentId, patientId, vitals);
 
     // 2. Advance appointment status to 'with_doctor'
-    await appointmentService.moveToDoctor(appointmentId);
+    await appointmentService.passToDoctor(appointmentId);
 
     // 3. Notify Doctor Role
-    await notificationService.sendNotification({
-      target_role: 'doctor',
-      title: 'Patient Vitals Triaged',
-      message: `Nurse has recorded vitals for patient. Ready for consultation.`,
-      type: 'info',
-    });
+    try {
+      await notificationService.sendNotification({
+        target_role: 'doctor',
+        title: 'New Patient Ready in Queue 🩺',
+        message: `${patientName} has completed nursing triage and is waiting for clinical evaluation.`,
+        type: 'info',
+        action_url: '/doctor',
+      });
+    } catch (notifErr) {
+      console.warn('Failed to send doctor notification:', notifErr);
+    }
+
+    // 4. Notify Patient
+    try {
+      await notificationService.sendNotification({
+        recipient_id: patientId,
+        title: 'Triage Complete - Consultation Ready! 🩺',
+        message: 'Your health vitals have been recorded by the nurse. Please proceed to the Doctor Consultation Station.',
+        type: 'urgent',
+        is_critical: true,
+        action_url: '/portal',
+      });
+    } catch (notifErr) {
+        console.warn('Failed to send patient triage notification:', notifErr);
+    }
 
     showToast('Vitals saved successfully! Patient moved to Doctor Desk.', 'success', 'Vitals Recorded');
     setSelectedVitalsAppointment(null);
