@@ -4,7 +4,7 @@ import { PatientCategory } from '../types/database.types';
 
 export const DEFAULT_PARTNER_INSTITUTIONS: InstitutionRow[] = [
   {
-    id: 'tcc-partner-001',
+    id: 'a10ba08a-12a7-4b0c-9c1d-cefb46dc3068',
     code: 'TCC',
     name: 'Tanauan City College',
     address: 'Tanauan City, Batangas',
@@ -12,7 +12,7 @@ export const DEFAULT_PARTNER_INSTITUTIONS: InstitutionRow[] = [
     created_at: new Date().toISOString(),
   },
   {
-    id: 'bsu-partner-002',
+    id: '43ac4ed4-bb83-4593-b66d-1f36d347eccb',
     code: 'BSU',
     name: 'Batangas State University',
     address: 'Batangas City, Batangas',
@@ -20,7 +20,7 @@ export const DEFAULT_PARTNER_INSTITUTIONS: InstitutionRow[] = [
     created_at: new Date().toISOString(),
   },
   {
-    id: 'pup-partner-003',
+    id: '906d0991-74bb-4402-aeea-30a60cae3cca',
     code: 'PUP',
     name: 'Polytechnic University of the Philippines - Sto. Tomas',
     address: 'Sto. Tomas, Batangas',

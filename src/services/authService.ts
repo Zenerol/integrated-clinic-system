@@ -29,20 +29,33 @@ export const authService = {
     if (error) throw error;
 
     if (data.user) {
-      // Upsert user profile into public.profiles table
-      const { error: profileError } = await supabase.from('profiles').upsert({
+      // Validate UUID format for institution_id to prevent Postgres syntax errors
+      const isUuid = typeof payload.institutionId === 'string' &&
+        /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(payload.institutionId);
+
+      const profilePayload = {
         id: data.user.id,
         full_name: payload.fullName,
         role: payload.role,
         patient_type: payload.patientType || null,
-        institution_id: payload.institutionId || null,
+        institution_id: isUuid ? payload.institutionId : null,
         school_id_number: payload.schoolIdNumber || null,
         department_or_course: payload.departmentOrCourse || null,
         contact_number: payload.contactNumber || null,
         address: payload.address || null,
         account_status: initialStatus,
         professional_license_no: payload.professionalLicenseNo || null,
-      });
+      };
+
+      let { error: profileError } = await supabase.from('profiles').upsert(profilePayload);
+
+      // Foreign key constraint (23503) fallback if target institution_id is not in clinic_system.institutions
+      if (profileError && (profileError.code === '23503' || profileError.message?.includes('foreign key constraint'))) {
+        console.warn('Institution ID FK mismatch, saving profile with null institution_id:', profileError.message);
+        profilePayload.institution_id = null;
+        const retryRes = await supabase.from('profiles').upsert(profilePayload);
+        profileError = retryRes.error;
+      }
 
       if (profileError) throw profileError;
     }
