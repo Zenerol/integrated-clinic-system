@@ -46,10 +46,10 @@ export const ActiveQueueList: React.FC<ActiveQueueListProps> = ({
         return (
           <div
             key={item.id}
-            className="glass-card p-5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs hover:shadow-sm"
+            className="p-5 rounded-xl border border-slate-200/80 dark:border-slate-700/60 bg-white dark:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs hover:shadow-sm"
           >
             {/* Queue Details */}
-            <div className="space-y-2 flex-1">
+            <div className="space-y-3 flex-1 w-full">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className={`${statusStyle.bg} ${statusStyle.text}`}>
                   {statusStyle.label}
@@ -58,20 +58,20 @@ export const ActiveQueueList: React.FC<ActiveQueueListProps> = ({
                   {patientStyle.label}
                 </Badge>
                 {item.patient.school_id_number && (
-                  <span className="text-xs text-slate-700 dark:text-slate-300 font-mono bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200/80 dark:border-slate-700 font-bold">
+                  <span className="text-xs text-slate-700 dark:text-slate-300 font-mono bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200/80 dark:border-slate-800 font-bold">
                     ID: {maskIdNumber(item.patient.school_id_number)}
                   </span>
                 )}
               </div>
 
               <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                <User className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
                 <h4 className="text-base font-extrabold text-slate-900 dark:text-slate-100">{item.patient.full_name}</h4>
               </div>
 
-              <p className="text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 font-medium">
-                <strong className="text-slate-900 dark:text-slate-300 font-bold">Chief Complaint:</strong> {item.chief_complaint}
-              </p>
+              <div className="text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-lg border border-slate-200/80 dark:border-slate-800 font-medium">
+                <strong className="text-slate-900 dark:text-slate-100 font-bold">Chief Complaint:</strong> {item.chief_complaint}
+              </div>
 
               {item.check_in_time && (
                 <p className="text-xs text-teal-800 dark:text-cyan-400 flex items-center gap-1 font-bold">

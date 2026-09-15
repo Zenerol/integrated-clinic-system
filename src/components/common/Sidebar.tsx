@@ -134,22 +134,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       {/* Sidebar Main Container */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white dark:bg-slate-900 border-r border-slate-200/75 dark:border-slate-800 flex flex-col justify-between p-4 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'
         }`}
       >
-        {/* Top Header & Brand */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        {/* Top Header & Brand (Exact h-16 height to align with Navbar border-b line) */}
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="h-16 px-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-700 flex items-center justify-center text-white shadow-md">
-                <Activity className="w-6 h-6" />
+              <div className="w-9 h-9 rounded-xl bg-teal-700 flex items-center justify-center text-white shadow-xs">
+                <Activity className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-base font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">
+                <h1 className="text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">
                   CLINIC CARE
                 </h1>
-                <p className="text-[10px] text-teal-700 dark:text-teal-400 uppercase tracking-widest font-extrabold mt-1">
+                <p className="text-[9px] text-teal-700 dark:text-teal-400 uppercase tracking-widest font-extrabold mt-0.5">
                   Health System
                 </p>
               </div>
@@ -164,11 +164,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
 
           {/* Navigation Items */}
-          <nav className="space-y-4">{renderNavLinks()}</nav>
+          <nav className="p-4 space-y-4 flex-1 overflow-y-auto">{renderNavLinks()}</nav>
         </div>
 
         {/* Sidebar Footer Notice */}
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+        <div className="p-4 border-t border-slate-200/80 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-500 font-medium shrink-0">
           <p>© 2026 Clinic Care System</p>
         </div>
       </aside>
