@@ -62,9 +62,9 @@ export const PatientAppointmentsList: React.FC<PatientAppointmentsListProps> = (
         return (
           <div
             key={item.id}
-            className="p-5 rounded-xl border border-slate-200/80 dark:border-slate-700/60 bg-white dark:bg-slate-800/50 space-y-4 shadow-xs hover:shadow-sm transition-all duration-200"
+            className="p-5 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 bg-white dark:bg-slate-900/90 hover:border-slate-300 dark:hover:border-slate-700/80 shadow-sm hover:shadow-md transition-all duration-200 space-y-4"
           >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200/80 dark:border-slate-700/60 pb-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className={`${statusStyle.bg} ${statusStyle.text}`}>
                   {statusStyle.label}
@@ -86,14 +86,19 @@ export const PatientAppointmentsList: React.FC<PatientAppointmentsListProps> = (
               )}
             </div>
 
-            {/* Chief Complaint */}
-            <div className="text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-lg border border-slate-200/80 dark:border-slate-800 font-medium">
-              <strong className="text-slate-900 dark:text-slate-100 font-bold">Health Symptoms:</strong> {item.chief_complaint}
+            {/* Chief Complaint Callout Box */}
+            <div className="p-4 rounded-xl bg-slate-50/80 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 text-xs leading-relaxed">
+              <span className="font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wider text-[11px] block mb-1">
+                Health Symptoms / Consultation Reason:
+              </span>
+              <p className="text-slate-700 dark:text-slate-300 font-medium text-sm">
+                {item.chief_complaint}
+              </p>
             </div>
 
             {/* Rejection notice if rejected */}
             {item.status === 'rejected' && item.rejection_reason && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg flex items-center gap-2 text-rose-800 dark:text-rose-300 text-xs font-bold">
+              <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-800 dark:text-rose-300 text-xs font-bold">
                 <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
                 <span><strong>Reason Declining Visit:</strong> {item.rejection_reason}</span>
               </div>
