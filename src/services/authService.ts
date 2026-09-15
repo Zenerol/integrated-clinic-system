@@ -42,8 +42,8 @@ export const authService = {
     // Fallback 1: If rate-limited by email provider (HTTP 429), use admin client to create user without sending email
     if (authError) {
       const errStr = (authError.message || JSON.stringify(authError)).toLowerCase();
-      if (errStr.includes('rate limit') || authError.status === 429) {
-        console.warn('[AuthService]: Rate limit detected. Executing admin bypass for account creation...');
+      if (errStr.includes('rate limit') || authError.status === 429 || errStr.includes('already registered') || errStr.includes('already exists')) {
+        console.warn('[AuthService]: Rate limit or existing auth user detected. Executing admin bypass...');
         try {
           const serviceRoleKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY ||
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtqanl5YmxndG13cm9udnVkdnhjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTM4NDkzMSwiZXhwIjoyMTA0OTYwOTMxfQ.9TUBie0v5g58CIkZH0yiA0zcFu2l61xvIe-YIceftMk';
@@ -64,10 +64,22 @@ export const authService = {
             },
           });
 
-          if (!adminRes.error && adminRes.data?.user) {
+          if (adminRes.error) {
+            const adminErrMsg = (adminRes.error.message || '').toLowerCase();
+            if (adminErrMsg.includes('already registered') || adminErrMsg.includes('already exists')) {
+              const { data: listData } = await adminClient.auth.admin.listUsers({ perPage: 1000 });
+              const existingUser = listData?.users?.find((u: any) => u.email?.toLowerCase() === payload.email.toLowerCase());
+              if (existingUser) {
+                authUser = existingUser;
+                authError = null;
+              }
+            }
+          } else if (adminRes.data?.user) {
             authUser = adminRes.data.user;
             authError = null;
+          }
 
+          if (authUser) {
             // Log in user session using password
             try {
               await supabase.auth.signInWithPassword({
