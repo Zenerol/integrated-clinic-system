@@ -12,13 +12,21 @@ interface AppointmentCalendarPickerProps {
 
 const AVAILABLE_TIME_SLOTS = [
   '08:00 AM',
+  '08:30 AM',
   '09:00 AM',
+  '09:30 AM',
   '10:00 AM',
+  '10:30 AM',
   '11:00 AM',
+  '11:30 AM',
   '01:00 PM',
+  '01:30 PM',
   '02:00 PM',
+  '02:30 PM',
   '03:00 PM',
+  '03:30 PM',
   '04:00 PM',
+  '04:30 PM',
 ];
 
 export const AppointmentCalendarPicker: React.FC<AppointmentCalendarPickerProps> = ({
@@ -178,7 +186,7 @@ export const AppointmentCalendarPicker: React.FC<AppointmentCalendarPickerProps>
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-56 overflow-y-auto p-1 pr-1.5 custom-scrollbar">
             {AVAILABLE_TIME_SLOTS.map((slot) => {
               const isBooked = bookedSlots.includes(slot);
               const isSelected = selectedTime === slot;
