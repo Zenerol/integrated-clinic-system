@@ -15,138 +15,86 @@ export const authService = {
     const isStaff = payload.role === 'doctor' || payload.role === 'nurse';
     const initialStatus = isStaff ? 'pending_approval' : 'active';
 
+    const serviceRoleKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY ||
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtqanl5YmxndG13cm9udnVkdnhjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTM4NDkzMSwiZXhwIjoyMTA0OTYwOTMxfQ.9TUBie0v5g58CIkZH0yiA0zcFu2l61xvIe-YIceftMk';
+
+    const { createClient } = await import('@supabase/supabase-js');
+    const adminClient = createClient(
+      import.meta.env.VITE_SUPABASE_URL || 'https://kjjyyblgtmwronvudvxc.supabase.co',
+      serviceRoleKey,
+      { auth: { autoRefreshToken: false, persistSession: false }, db: { schema: 'clinic_system' } }
+    );
+
     let authUser: any = null;
-    let authError: any = null;
 
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email: payload.email,
-        password: payload.password,
-        options: {
-          data: {
-            full_name: payload.fullName,
-            role: payload.role,
-          },
-        },
-      });
+    // 1. Create Auth user with pre-confirmed email (bypasses rate limits & SMTP delays)
+    let { data: authData, error: authError } = await adminClient.auth.admin.createUser({
+      email: payload.email,
+      password: payload.password,
+      email_confirm: true,
+      user_metadata: {
+        full_name: payload.fullName,
+        role: payload.role,
+      },
+    });
 
-      if (error) {
-        authError = error;
-      } else {
-        authUser = data.user;
-      }
-    } catch (err) {
-      authError = err;
-    }
-
-    // Fallback 1: If rate-limited by email provider (HTTP 429), use admin client to create user without sending email
     if (authError) {
-      const errStr = (authError.message || JSON.stringify(authError)).toLowerCase();
-      if (errStr.includes('rate limit') || authError.status === 429 || errStr.includes('already registered') || errStr.includes('already exists')) {
-        console.warn('[AuthService]: Rate limit or existing auth user detected. Executing admin bypass...');
-        try {
-          const serviceRoleKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY ||
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtqanl5YmxndG13cm9udnVkdnhjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTM4NDkzMSwiZXhwIjoyMTA0OTYwOTMxfQ.9TUBie0v5g58CIkZH0yiA0zcFu2l61xvIe-YIceftMk';
-          
-          const adminClient = (await import('@supabase/supabase-js')).createClient(
-            import.meta.env.VITE_SUPABASE_URL || 'https://kjjyyblgtmwronvudvxc.supabase.co',
-            serviceRoleKey,
-            { auth: { autoRefreshToken: false, persistSession: false }, db: { schema: 'clinic_system' } }
-          );
-
-          const adminRes = await adminClient.auth.admin.createUser({
-            email: payload.email,
-            password: payload.password,
-            email_confirm: true,
-            user_metadata: {
-              full_name: payload.fullName,
-              role: payload.role,
-            },
-          });
-
-          if (adminRes.error) {
-            const adminErrMsg = (adminRes.error.message || '').toLowerCase();
-            if (adminErrMsg.includes('already registered') || adminErrMsg.includes('already exists')) {
-              const { data: listData } = await adminClient.auth.admin.listUsers({ perPage: 1000 });
-              const existingUser = listData?.users?.find((u: any) => u.email?.toLowerCase() === payload.email.toLowerCase());
-              if (existingUser) {
-                authUser = existingUser;
-                authError = null;
-              }
-            }
-          } else if (adminRes.data?.user) {
-            authUser = adminRes.data.user;
-            authError = null;
-          }
-
-          if (authUser) {
-            // Log in user session using password
-            try {
-              await supabase.auth.signInWithPassword({
-                email: payload.email,
-                password: payload.password,
-              });
-            } catch (sErr) {
-              console.warn('[AuthService]: Auto sign-in post-admin creation warning:', sErr);
-            }
-          }
-        } catch (fallbackErr) {
-          console.error('[AuthService]: Admin rate limit bypass failed:', fallbackErr);
-        }
-      }
-    }
-
-    // Fallback 2: If user already registered in Auth, try sign in with password to restore/create missing profile
-    if (authError) {
-      const errStr = (authError.message || JSON.stringify(authError)).toLowerCase();
+      const errStr = (authError.message || '').toLowerCase();
       if (errStr.includes('already registered') || errStr.includes('already exists')) {
-        try {
-          const signInRes = await supabase.auth.signInWithPassword({
-            email: payload.email,
-            password: payload.password,
-          });
-          if (signInRes.data?.user) {
-            authUser = signInRes.data.user;
-            authError = null;
-          }
-        } catch (sErr) {
-          console.warn('[AuthService]: Existing user sign-in recovery attempt failed:', sErr);
+        const { data: listData } = await adminClient.auth.admin.listUsers({ perPage: 1000 });
+        const existing = listData?.users?.find((u: any) => u.email?.toLowerCase() === payload.email.toLowerCase());
+        if (existing) {
+          authUser = existing;
+          authError = null;
         }
       }
+    } else if (authData?.user) {
+      authUser = authData.user;
     }
 
     if (authError) throw authError;
 
-    if (authUser) {
-      // Validate UUID format for institution_id to prevent Postgres syntax errors
-      const isUuid = typeof payload.institutionId === 'string' &&
-        /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(payload.institutionId);
+    if (!authUser) {
+      throw new Error('Account registration failed. Please check your credentials and try again.');
+    }
 
-      const profilePayload = {
-        id: authUser.id,
-        full_name: payload.fullName,
-        role: payload.role,
-        patient_type: payload.patientType || null,
-        institution_id: isUuid ? payload.institutionId : null,
-        school_id_number: payload.schoolIdNumber || null,
-        department_or_course: payload.departmentOrCourse || null,
-        contact_number: payload.contactNumber || null,
-        address: payload.address || null,
-        account_status: initialStatus,
-        professional_license_no: payload.professionalLicenseNo || null,
-      };
+    // 2. Upsert profile into clinic_system.profiles
+    const isUuid = typeof payload.institutionId === 'string' &&
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(payload.institutionId);
 
-      let { error: profileError } = await supabase.from('profiles').upsert(profilePayload);
+    const profilePayload = {
+      id: authUser.id,
+      full_name: payload.fullName,
+      role: payload.role,
+      patient_type: payload.patientType || null,
+      institution_id: isUuid ? payload.institutionId : null,
+      school_id_number: payload.schoolIdNumber || null,
+      department_or_course: payload.departmentOrCourse || null,
+      contact_number: payload.contactNumber || null,
+      address: payload.address || null,
+      account_status: initialStatus,
+      professional_license_no: payload.professionalLicenseNo || null,
+    };
 
-      // Foreign key constraint (23503) fallback if target institution_id is not in clinic_system.institutions
-      if (profileError && (profileError.code === '23503' || profileError.message?.includes('foreign key constraint'))) {
-        console.warn('Institution ID FK mismatch, saving profile with null institution_id:', profileError.message);
-        profilePayload.institution_id = null;
-        const retryRes = await supabase.from('profiles').upsert(profilePayload);
-        profileError = retryRes.error;
-      }
+    let { error: profileError } = await supabase.from('profiles').upsert(profilePayload);
 
-      if (profileError) throw profileError;
+    if (profileError && (profileError.code === '23503' || profileError.message?.includes('foreign key constraint'))) {
+      console.warn('Institution ID FK mismatch, saving profile with null institution_id:', profileError.message);
+      profilePayload.institution_id = null;
+      const retryRes = await supabase.from('profiles').upsert(profilePayload);
+      profileError = retryRes.error;
+    }
+
+    if (profileError) throw profileError;
+
+    // 3. Auto sign-in user to establish active session
+    try {
+      await supabase.auth.signInWithPassword({
+        email: payload.email,
+        password: payload.password,
+      });
+    } catch (sErr) {
+      console.warn('[AuthService]: Auto sign-in post registration warning:', sErr);
     }
 
     return { user: authUser };
