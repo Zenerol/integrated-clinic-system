@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabaseClient';
 import { AppointmentStatus } from '../types/database.types';
 import { AppointmentWithPatient, CreateAppointmentPayload } from '../types/clinic.types';
+import { notificationService } from './notificationService';
 
 export const appointmentService = {
   async getAppointments(filters?: {
@@ -87,6 +88,33 @@ export const appointmentService = {
       .single();
 
     if (error) throw error;
+
+    // Send in-app notification to patient that appointment is approved
+    if (data && data.patient_id) {
+      try {
+        const formattedDate = data.scheduled_at
+          ? new Date(data.scheduled_at).toLocaleDateString('en-US', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : 'scheduled time';
+
+        await notificationService.sendNotification({
+          recipient_id: data.patient_id,
+          title: 'Appointment Approved & Confirmed! 🎉',
+          message: `Your medical consultation scheduled for ${formattedDate} has been confirmed by clinic nursing staff. Please arrive 10 minutes prior to your slot.`,
+          type: 'success',
+          is_critical: false,
+          action_url: '/portal',
+        });
+      } catch (notifErr) {
+        console.warn('Failed to send appointment approval notification:', notifErr);
+      }
+    }
+
     return data;
   },
 
@@ -104,6 +132,23 @@ export const appointmentService = {
       .single();
 
     if (error) throw error;
+
+    // Send in-app notification to patient that appointment was declined
+    if (data && data.patient_id) {
+      try {
+        await notificationService.sendNotification({
+          recipient_id: data.patient_id,
+          title: 'Appointment Request Update',
+          message: `Your consultation request was declined: ${reason}`,
+          type: 'warning',
+          is_critical: false,
+          action_url: '/portal',
+        });
+      } catch (notifErr) {
+        console.warn('Failed to send appointment rejection notification:', notifErr);
+      }
+    }
+
     return data;
   },
 
@@ -134,6 +179,23 @@ export const appointmentService = {
       .single();
 
     if (error) throw error;
+
+    // Send critical notification to patient that doctor is ready for consult
+    if (data && data.patient_id) {
+      try {
+        await notificationService.sendNotification({
+          recipient_id: data.patient_id,
+          title: 'Consultation Ready! 🩺',
+          message: 'Triage complete. The physician is ready for your clinical encounter. Please enter the doctor consultation station.',
+          type: 'urgent',
+          is_critical: true,
+          action_url: '/portal',
+        });
+      } catch (notifErr) {
+        console.warn('Failed to send pass to doctor notification:', notifErr);
+      }
+    }
+
     return data;
   },
 
