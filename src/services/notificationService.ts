@@ -11,11 +11,11 @@ export const notificationService = {
       .order('created_at', { ascending: false });
 
     if (userId && userRole) {
-      query = query.or(`recipient_id.eq.${userId},target_role.eq.${userRole},target_role.is.null`);
+      query = query.or(`recipient_id.eq.${userId},target_role.eq.${userRole},and(recipient_id.is.null,target_role.is.null)`);
     } else if (userId) {
-      query = query.or(`recipient_id.eq.${userId},recipient_id.is.null`);
+      query = query.or(`recipient_id.eq.${userId},and(recipient_id.is.null,target_role.is.null)`);
     } else if (userRole) {
-      query = query.or(`target_role.eq.${userRole},target_role.is.null`);
+      query = query.or(`target_role.eq.${userRole},and(recipient_id.is.null,target_role.is.null)`);
     }
 
     const { data, error } = await query;
