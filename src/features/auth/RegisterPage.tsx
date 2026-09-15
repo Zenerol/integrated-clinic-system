@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Input } from '../../components/ui/Input';
@@ -9,7 +9,7 @@ import { InstitutionRow } from '../../types/clinic.types';
 import { DEFAULT_PARTNER_INSTITUTIONS, institutionService } from '../../services/institutionService';
 import { getPasswordStrength, passwordSchema } from '../../utils/validationSchemas';
 import { sanitizeInput } from '../../utils/security';
-import { Mail, Lock, User, IdCard, Building2, Phone, MapPin, UserPlus, AlertCircle, GraduationCap, UserCheck, Stethoscope } from 'lucide-react';
+import { Mail, Lock, User, IdCard, Building2, Phone, MapPin, UserPlus, AlertCircle, GraduationCap, UserCheck, Stethoscope, CheckCircle2, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
   const { signUp } = useAuth();
@@ -56,8 +56,13 @@ export const RegisterPage: React.FC = () => {
     }
   };
 
+  const [submittedSuccess, setSubmittedSuccess] = useState(false);
+  const isSubmittingRef = useRef(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading || isSubmittingRef.current) return;
+
     setErrorMessage(null);
 
     // OWASP A07: Validate Password Complexity
@@ -78,29 +83,93 @@ export const RegisterPage: React.FC = () => {
       return;
     }
 
+    isSubmittingRef.current = true;
     setLoading(true);
 
-    const { error } = await signUp({
-      email: email.trim().toLowerCase(),
-      password,
-      fullName: sanitizeInput(fullName),
-      role: 'client', // Strictly hardcoded to 'client' for security
-      patientType: categoryMode === 'campus' ? patientType : 'external_client',
-      institutionId: categoryMode === 'campus' ? selectedInstitutionId : undefined,
-      schoolIdNumber: categoryMode === 'campus' ? sanitizeInput(schoolIdNumber) : undefined,
-      departmentOrCourse: categoryMode === 'campus' ? sanitizeInput(departmentOrCourse) : undefined,
-      contactNumber: sanitizeInput(contactNumber),
-      address: sanitizeInput(address),
-    });
+    try {
+      const { error } = await signUp({
+        email: email.trim().toLowerCase(),
+        password,
+        fullName: sanitizeInput(fullName),
+        role: 'client', // Strictly hardcoded to 'client' for security
+        patientType: categoryMode === 'campus' ? patientType : 'external_client',
+        institutionId: categoryMode === 'campus' ? selectedInstitutionId : undefined,
+        schoolIdNumber: categoryMode === 'campus' ? sanitizeInput(schoolIdNumber) : undefined,
+        departmentOrCourse: categoryMode === 'campus' ? sanitizeInput(departmentOrCourse) : undefined,
+        contactNumber: sanitizeInput(contactNumber),
+        address: sanitizeInput(address),
+      });
 
-    setLoading(false);
-
-    if (error) {
-      setErrorMessage(error.message || 'Registration failed.');
-    } else {
-      navigate('/portal');
+      if (error) {
+        setErrorMessage(error.message || 'Registration failed.');
+      } else {
+        setSubmittedSuccess(true);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An error occurred during account registration.';
+      setErrorMessage(msg);
+    } finally {
+      setLoading(false);
+      isSubmittingRef.current = false;
     }
   };
+
+  if (submittedSuccess) {
+    return (
+      <div className="text-center py-6 space-y-5 animate-in zoom-in-95 duration-200">
+        <div className="mx-auto w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-500/20 border-4 border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xl">
+          <CheckCircle2 className="w-10 h-10 animate-bounce" />
+        </div>
+
+        <div className="space-y-1.5">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+            Account Created Successfully! 🎉
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-semibold max-w-sm mx-auto">
+            Welcome to the Multi-School Consortium & Community Clinic Platform. Your patient account is now registered and active.
+          </p>
+        </div>
+
+        <div className="p-4 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700/80 text-left text-xs space-y-2 font-medium max-w-md mx-auto shadow-xs">
+          <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-700/60 pb-2">
+            <span className="text-slate-500 dark:text-slate-400 font-semibold">Registered Patient:</span>
+            <strong className="text-slate-900 dark:text-slate-100 font-black">{fullName}</strong>
+          </div>
+          <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-700/60 pb-2">
+            <span className="text-slate-500 dark:text-slate-400 font-semibold">Account Email:</span>
+            <strong className="text-teal-700 dark:text-teal-400 font-bold">{email}</strong>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-slate-500 dark:text-slate-400 font-semibold">Affiliation Category:</span>
+            <strong className="text-slate-900 dark:text-slate-100 font-extrabold uppercase">
+              {categoryMode === 'campus' ? `Campus ${patientType}` : 'Community Outpatient'}
+            </strong>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 max-w-md mx-auto pt-2">
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={() => navigate('/portal')}
+            icon={<ArrowRight className="w-4 h-4" />}
+            className="w-full shadow-md"
+          >
+            Proceed to Patient Portal
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="lg"
+            onClick={() => navigate('/login')}
+            className="w-full"
+          >
+            Sign In to Account
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
